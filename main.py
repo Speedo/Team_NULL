@@ -6,6 +6,13 @@ trains = []
 stations = []
 lines = []
 passengers = []
+"""
+    #######################################
+    #######################################
+    ############### Input #################
+    #######################################
+    #######################################
+"""
 with open('input.txt') as f:
     file = f.readlines()
     for i in file:
@@ -27,27 +34,28 @@ with open('input.txt') as f:
                 data[3]), int(data[4].replace("\\n", "")))
             for station in stations:
                 if station.id == data[1]:
-                    passenger.depatureStation=station
+                    passenger.depatureStation = station
                 elif station.id == data[2]:
                     passenger.destinationStation = station
             passengers.append(passenger)
 
 """
+    Beispiel um Aktion einem Tain/Passenger hinzuzufügen
+"""
+#trains[0].addAction(0, "Start", "Test")
+#trains[0].addAction(1, "Depart", "Test2")
+#passengers[0].addAction(0, "Board", "Test")
+#passengers[0].addAction(2, "Detrain")
+"""
     #######################################
     #######################################
-    ########### Debug Outputs #############
+    ############### Output #################
     #######################################
     #######################################
 """
-print("Stations")
-for station in stations:
-    print(station.toString())
-print("Lines")
-for line in lines:
-    print(line.toString())
-print("Trains")
+file = open("output.txt", "w")
+file.close()
 for train in trains:
-    print(train.toString())
-print("Passengers")
+    train.write()
 for passenger in passengers:
-    print(passenger.toString())
+    passenger.write()

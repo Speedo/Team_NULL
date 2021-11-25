@@ -1,0 +1,8 @@
+[Train:T1]
+
+[Train:T2]
+
+[Passenger:P1]
+
+[Passenger:P2]
+
