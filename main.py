@@ -17,6 +17,7 @@ stations = []
 lines = []
 passengers = []
 currentTime = 0
+lines_graph = nx.Graph()
 
 """
     #######################################
@@ -70,20 +71,59 @@ def write_output():
 """
     #######################################
     #######################################
-    ############### Graph #################
+    ############ Lines Graph ##############
     #######################################
     #######################################
 """
-def build_graph()_
-    G = nx.Graph()
+def build_lines_graph():
     for x in stations:
-        G.add_node(x.id)
+        lines_graph.add_node(x.id)
     for line in lines:
-        G.add_edge(line.stations[0].id, line.stations[1].id, weight=line.length)
-        
-    nx.draw(G, with_labels=True)
+        lines_graph.add_edge(line.stations[0].id, line.stations[1].id, weight=line.length)
+    
+def draw_lines_graph():
+    #Debug output um Graph zu zeichnen
+    nx.draw(lines_graph, with_labels=True)
     plt.show()
 
+"""
+    #######################################
+    #######################################
+    ###### Group and Sort Passengers ######
+    #######################################
+    #######################################
+"""
+def group_passengers_by_DepartureStation():
+    for station in stations:
+        for passenger in passengers:
+            if passenger.depatureStation == station:
+                station.addPassenger(passenger)
+
+def sort_passengers_by_arrivalTime():
+    for station in stations:
+        station.passengers.sort(key=lambda x: x.targetTime)
+
+def print_passengers(station):
+    for passenger in station.passengers:
+        print("passenger: ")
+        print(passenger.id, passenger.targetTime, passenger.destinationStation.id)
+
+"""
+    #######################################
+    #######################################
+    ######## Group and Sort Trains ########
+    #######################################
+    #######################################
+"""
+def group_trains_by_startingPosition():
+    for station in stations:
+        for train in trains:
+            if train.startingPosition == station.id:
+                station.addTrain(train)
+    
+def sort_trains_by_speed():
+    for station in stations:
+        station.trains.sort(key=lambda x: x.speed)
 """
     #######################################
     #######################################
@@ -93,5 +133,9 @@ def build_graph()_
 """
 if __name__ == "__main__":
     load_input()
+    group_passengers_by_DepartureStation()
+    group_trains_by_startingPosition()
+    sort_passengers_by_arrivalTime()
+    sort_trains_by_speed()
+    build_lines_graph()
     #write_output()
-    build_graph()
