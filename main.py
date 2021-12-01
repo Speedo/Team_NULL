@@ -138,4 +138,5 @@ if __name__ == "__main__":
     sort_passengers_by_arrivalTime()
     sort_trains_by_speed()
     build_lines_graph()
+    draw_lines_graph()
     #write_output()
