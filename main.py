@@ -2,6 +2,7 @@ from classes.line import Line
 from classes.passengers import Passengers
 from classes.station import Station
 from classes.train import Train
+from classes.simulationTime import SimulationTime
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -18,6 +19,8 @@ lines = []
 passengers = []
 currentTime = 0
 lines_graph = nx.Graph()
+simulationTime = SimulationTime()
+simulationTime.currentTick = 0
 
 """
     #######################################
