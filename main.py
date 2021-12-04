@@ -127,6 +127,22 @@ def group_trains_by_startingPosition():
 def sort_trains_by_speed():
     for station in stations:
         station.trains.sort(key=lambda x: x.speed)
+
+
+
+"""
+    #######################################
+    #######################################
+    ############### Delay #################
+    #######################################
+    #######################################
+"""
+
+def calculate_delay(targetTime:int, speed:float, length:float, tick:int):
+    return targetTime - (length / speed + tick)
+
+
+
 """
     #######################################
     #######################################
