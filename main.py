@@ -3,6 +3,7 @@ from classes.passengers import Passengers
 from classes.station import Station
 from classes.train import Train
 from classes.simulationTime import SimulationTime
+from classes.rating import Rating
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -21,6 +22,7 @@ currentTime = 0
 lines_graph = nx.Graph()
 simulationTime = SimulationTime()
 simulationTime.currentTick = 0
+rating = Rating(passengers, trains, lines_graph)
 
 """
     #######################################
@@ -141,7 +143,15 @@ def sort_trains_by_speed():
 def calculate_delay(targetTime:int, speed:float, length:float, tick:int):
     return targetTime - (length / speed + tick)
 
+"""
+    #######################################
+    #######################################
+    ############### Rating ################
+    #######################################
+    #######################################
+"""
 
+rating.findRating()
 
 """
     #######################################
