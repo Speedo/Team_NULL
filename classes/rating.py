@@ -12,10 +12,11 @@ class Rating:
         self.graph = graph
     
     def calculateRating(self, passenger, train):
-        rating = passenger.targetTime
-        rating -= shortest_path_length(self.graph, source=train.startingStation.id, target=passenger.depatureStation.id) * train.speed
-        rating -= shortest_path_length(self.graph, source=passenger.depatureStation.id, target=passenger.destinationStation.id) * train.speed
-        return rating
+        if train.startingStation is not None:
+            rating = passenger.targetTime
+            rating -= shortest_path_length(self.graph, source=train.startingStation.id, target=passenger.depatureStation.id, weight="weight") * train.speed
+            rating -= shortest_path_length(self.graph, source=passenger.depatureStation.id, target=passenger.destinationStation.id, weight="weight") * train.speed
+            return rating
 
     def findRating(self):
         for i in range (0, len(self.passengers)-1):
