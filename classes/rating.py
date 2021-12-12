@@ -13,8 +13,8 @@ class Rating:
     
     def calculateRating(self, passenger, train):
         rating = passenger.targetTime
-        rating -= shortest_path_length(self.graph, source=train.startingPosition, target=passenger.depatureStation) * train.speed
-        rating -= shortest_path_length(self.graph, source=passenger.depatureStation, target=passenger.destinationStation) * train.speed
+        rating -= shortest_path_length(self.graph, source=train.startingStation.id, target=passenger.depatureStation.id) * train.speed
+        rating -= shortest_path_length(self.graph, source=passenger.depatureStation.id, target=passenger.destinationStation.id) * train.speed
         return rating
 
     def findRating(self):

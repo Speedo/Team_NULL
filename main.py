@@ -145,6 +145,19 @@ def calculate_delay(targetTime:int, speed:float, length:float, tick:int):
 """
     #######################################
     #######################################
+    ######## Fixing Train Station #########
+    #######################################
+    #######################################
+"""
+def fixTrainStationLinks():
+    for train in trains:
+        for station in stations:
+            print(train.startingPosition, station.id)
+            if train.startingPosition == station.id:
+                train.startingStation = station
+"""
+    #######################################
+    #######################################
     ############### Rating ################
     #######################################
     #######################################
@@ -168,5 +181,6 @@ if __name__ == "__main__":
     sort_trains_by_speed()
     build_lines_graph()
     #draw_lines_graph()
+    fixTrainStationLinks()
     initializeRating()
     #write_output()

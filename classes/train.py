@@ -5,6 +5,7 @@ class Train:
     def __init__(self, id, startingPosition, capacity, speed):
         self.id = id
         self.startingPosition = startingPosition
+        self.startingStation = None
         self.speed = speed
         self.capacity = capacity
         self.passengers = []
