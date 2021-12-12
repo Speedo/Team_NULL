@@ -22,7 +22,6 @@ currentTime = 0
 lines_graph = nx.Graph()
 simulationTime = SimulationTime()
 simulationTime.currentTick = 0
-rating = Rating(passengers, trains, lines_graph)
 
 """
     #######################################
@@ -150,8 +149,9 @@ def calculate_delay(targetTime:int, speed:float, length:float, tick:int):
     #######################################
     #######################################
 """
-
-rating.findRating()
+def initializeRating():
+    rating = Rating(passengers, trains, lines_graph)
+    rating.findRating()
 
 """
     #######################################
@@ -167,5 +167,6 @@ if __name__ == "__main__":
     sort_passengers_by_arrivalTime()
     sort_trains_by_speed()
     build_lines_graph()
-    draw_lines_graph()
+    #draw_lines_graph()
+    initializeRating()
     #write_output()
