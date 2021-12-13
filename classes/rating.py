@@ -22,6 +22,7 @@ class Rating:
         for i in range (0, len(self.passengers)-1):
             for j in range(0, len(self.trains)-1):
                 self.ratings[i][j] = self.calculateRating(self.passengers[i], self.trains[j])
+        #Anything below is just for debugging and can be commented out or deleted in final implementation
         print (self.ratings)
 
 
