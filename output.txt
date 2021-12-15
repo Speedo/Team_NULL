@@ -1,8 +1,108 @@
 [Train:T1]
+1 Depart L2
+6 Depart L6
+13 Depart L4
 
 [Train:T2]
+
+[Train:T3]
+
+[Train:T4]
+
+[Train:T5]
+
+[Train:T6]
+
+[Train:T7]
+
+[Train:T8]
+
+[Train:T9]
+
+[Train:T10]
 
 [Passenger:P1]
 
 [Passenger:P2]
+
+[Passenger:P3]
+
+[Passenger:P4]
+
+[Passenger:P5]
+0 Board T1
+
+[Passenger:P6]
+
+[Passenger:P7]
+
+[Passenger:P8]
+0 Board T1
+
+[Passenger:P9]
+
+[Passenger:P10]
+
+[Passenger:P11]
+
+[Passenger:P12]
+
+[Passenger:P13]
+
+[Passenger:P14]
+
+[Passenger:P15]
+
+[Passenger:P16]
+
+[Passenger:P17]
+
+[Passenger:P18]
+
+[Passenger:P19]
+
+[Passenger:P20]
+
+[Passenger:P21]
+
+[Passenger:P22]
+
+[Passenger:P23]
+
+[Passenger:P24]
+
+[Passenger:P25]
+
+[Passenger:P26]
+
+[Passenger:P27]
+12 Board T1
+
+[Passenger:P28]
+
+[Passenger:P29]
+
+[Passenger:P30]
+
+[Passenger:P31]
+
+[Passenger:P32]
+
+[Passenger:P33]
+
+[Passenger:P34]
+
+[Passenger:P35]
+
+[Passenger:P36]
+
+[Passenger:P37]
+
+[Passenger:P38]
+
+[Passenger:P39]
+
+[Passenger:P40]
+
+[Passenger:P41]
 
