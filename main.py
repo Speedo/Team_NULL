@@ -152,7 +152,12 @@ def sort_trains_by_speed():
 
 def calculate_delay(targetTime:int, speed:float, length:float, tick:int):
     return targetTime - (length / speed + tick)
-
+def get_overall_delay():
+    delay = 0
+    for passanger in passengers:
+        if(passanger.delay>0):
+            delay +=passanger.delay;
+    print("Gesamtverspätung: ",delay)
 """
     #######################################
     #######################################
@@ -377,10 +382,11 @@ def route_generation():
 def move_train(train):
     if(train.line == None):
         if(len(train.path)>1):
-            print(train.path[0].id,"," ,train.path[1].id)
-            line=get_line_by_id(lines_graph.get_edge_data(train.path[0].id, train.path[1].id)["attr"])
+            print(train.path[0].id,":", train.path[1].id)
+            lineId = lines_graph.get_edge_data(train.path[0].id, train.path[1].id)["attr"]
+            print(lineId)
+            line=get_line_by_id(lineId)
             #Wenn Line frei befahren
-            print(simulationTime.currentTick,"Depart")
             if(line.capacity>0):
                 line.capacity-=1
                 train.currentStation = None
@@ -393,7 +399,6 @@ def move_train(train):
 def move_train_on_line(train):
     # Zug ziehen
     train.progress += 1/(train.line.length/train.speed)
-    print("Progress:",train.progress)
     if(train.progress>=1):
         #Station erreicht
         train.path.pop(0)
@@ -405,42 +410,44 @@ def move_train_on_line(train):
 
 def move_trains():
     for train in trains:
-        if(train.id != "T1"):break
-        print(simulationTime.currentTick,"PAth:",train.path)
         #Check if train has path
-        if(len(train.path)>0):
-            print(simulationTime.currentTick," HasPath")
+        if(len(train.path)>1):
             if(train.currentStation==train.path[0]):
-                print(simulationTime.currentTick," On Station")
-                train.path.pop(0)
                 #Passagiere an dieser Position einsteigen
-
+                hasDetrainedPassengers = False
+                newPassengers = []
                 for passenger in train.boardedPassengers:
-                    if(train.currentStation ==passenger.destinationStation):
+                    if(train.currentStation == passenger.destinationStation):
                         passenger.addAction(simulationTime.currentTick,"Detrain")
-                        train.boardedPassengers.remove(passenger)
-                    
+                        #train.boardedPassengers.remove(passenger)
+                        hasDetrainedPassengers = True
+                    else:
+                        newPassengers.append(passenger)
+                train.boardedPassengers = newPassengers
                 if(len(train.passengers)>0):
                     if(len(train.passengers[0])>0):
-                        print(simulationTime.currentTick, " Load Passenger")
                         #Passagiere einsteigen lassen
                         for passenger in train.passengers[0]:
                             passenger.addAction(simulationTime.currentTick,"Board",train.id)
                             train.boardedPassengers.append(passenger)
                         train.passengers[0]=[]
-                    else:
+                    elif(not hasDetrainedPassengers):
                         #Oder weiterfahren (Überprüfen ob Strecke frei)
-                        print(simulationTime.currentTick, " Move 1")
                         move_train(train)
                 else:
                     #Oder weiterfahren (Überprüfen ob Strecke frei)
-                    print(simulationTime.currentTick, " Move 1")
                     move_train(train)
             else:
                 #Richtung train.path[0] fahren (Überprüfen ob Strecke frei)
-                print(simulationTime.currentTick, " Move 2")
                 move_train(train)
-
+        else: 
+            newPassengers=[]
+            for passenger in train.boardedPassengers:
+                if(train.currentStation == passenger.destinationStation):
+                    passenger.addAction(simulationTime.currentTick,"Detrain")
+                else:
+                    newPassengers.append(passenger)
+            train.boardedPassengers = newPassengers
 """
     #######################################
     #######################################
@@ -465,31 +472,32 @@ if __name__ == "__main__":
         route_generation()
         test_index+=1
         #print(len(routes))
-    """
-    for train in trains:
-        print(train.id,": ",train.time_needed)
-        path=""
-        for station in train.path:
-            path+=station.id+" "
-        print(path)
-        passengers=""
-        for passengers_station in train.passengers:
-            passengers+="["
-            for passenger in passengers_station:
-                passengers+=passenger.id+" "
-            passengers+="]"
-        print(passengers)
-    """
-    counterLoop = 0
-    while (counterLoop<100):
-        counterLoop+=1
+    
+    # for train in trains:
+    #     print(train.id,": ",train.time_needed)
+    #     path=""
+    #     for station in train.path:
+    #         path+=station.id+" "
+    #     print(path)
+    #     passengers=""
+    #     for passengers_station in train.passengers:
+    #         passengers+="["
+    #         for passenger in passengers_station:
+    #             passengers+=passenger.id+" "
+    #         passengers+="]"
+    
+    passengersAvailable = True
+    while (passengersAvailable):
         move_trains()
         simulationTime.tick()
+        passengersAvailable = False
+        for passenger in passengers:
+            if(not passenger.finished): 
+                passengersAvailable = True
+                break
 
     #check_if_route_contains_others()
     write_output()
-    """
-    T1 :  24
-    S3 S1 S3 S4 S3 S2 S3 S5
-    [P5 P8 ][][P27 ][][P11 P1 ][][P30 P38 P17 ][]
-    """
+    get_overall_delay()
+    #S3 S1 S3 S4 S3 S2 S3 S5
+    #L2 L2 L6 L6 L4 L4 L7

@@ -8,11 +8,16 @@ class Passengers:
         self.destinationStation = ""
         self.groupSize = groupSize
         self.targetTime = targetTime
+        self.delay = 0
         self.train = ""
+        self.finished = False
         self.actions = []
 
     def addAction(self, time, action, target=""):
         self.actions.append(Action(time, action, target))
+        if(action == "Detrain"):
+            self.delay = self.targetTime-time
+            self.finished = True
 
     def write(self):
         file = open("output.txt", "a")
