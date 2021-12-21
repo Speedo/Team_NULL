@@ -1,5 +1,5 @@
 from networkx.generators.expanders import paley_graph
-from numpy import Inf, inf, true_divide
+from numpy import Inf, inf
 from classes.line import Line
 from classes.passengers import Passengers
 from classes.station import Station
@@ -10,13 +10,8 @@ import matplotlib.pyplot as plt
 from networkx.algorithms.shortest_paths import shortest_path, weighted
 from networkx.algorithms.shortest_paths.generic import shortest_path_length
 import math
-"""
-    #######################################
-    #######################################
-    ############# Variables ###############
-    #######################################
-    #######################################
-"""
+
+#region Variables
 trains = []
 placed_trains = []
 wildcard_trains = []
@@ -28,16 +23,9 @@ currentTime = 0
 lines_graph = nx.Graph()
 simulationTime = SimulationTime()
 simulationTime.currentTick = 0
+#endregion
 
-"""
-    #######################################
-    #######################################
-    ############### Input #################
-    #######################################
-    #######################################
-"""
-
-
+#region In/Output
 def load_input():
     with open('input.txt') as f:
         file = f.readlines()
@@ -71,16 +59,6 @@ def load_input():
                         passenger.destinationStation = station
                 passengers.append(passenger)
 
-
-"""
-    #######################################
-    #######################################
-    ############### Output ################
-    #######################################
-    #######################################
-"""
-
-
 def write_output():
     file = open("output.txt", "w")
     file.close()
@@ -88,17 +66,9 @@ def write_output():
         train.write()
     for passenger in passengers:
         passenger.write()
+#endregion
 
-
-"""
-    #######################################
-    #######################################
-    ############ Lines Graph ##############
-    #######################################
-    #######################################
-"""
-
-
+#region Lines graph
 def build_lines_graph():
     for x in stations:
         lines_graph.add_node(x.id)
@@ -111,100 +81,10 @@ def draw_lines_graph():
     # Debug output um Graph zu zeichnen
     nx.draw(lines_graph, with_labels=True)
     plt.show()
+#endregion
 
-
-"""
-    #######################################
-    #######################################
-    ###### Group and Sort Passengers ######
-    #######################################
-    #######################################
-"""
-
-
-def group_passengers_by_DepartureStation():
-    for station in stations:
-        for passenger in passengers:
-            if passenger.depatureStation == station:
-                station.addPassenger(passenger)
-
-
-def sort_passengers_by_arrivalTime():
-    for station in stations:
-        station.passengers.sort(key=lambda x: x.targetTime)
-
-
-def print_passengers(station):
-    for passenger in station.passengers:
-        print("passenger: ")
-        print(passenger.id, passenger.targetTime,
-              passenger.destinationStation.id)
-
-
-"""
-    #######################################
-    #######################################
-    ######## Group and Sort Trains ########
-    #######################################
-    #######################################
-"""
-
-
-def group_trains_by_startingPosition():
-    for station in stations:
-        for train in trains:
-            if train.startingPosition == station.id:
-                station.addTrain(train)
-
-
-def sort_trains_by_speed():
-    for station in stations:
-        station.trains.sort(key=lambda x: x.speed)
-
-
-"""
-    #######################################
-    #######################################
-    ############### Delay #################
-    #######################################
-    #######################################
-"""
-
-
-def calculate_delay(targetTime: int, speed: float, length: float, tick: int):
-    return targetTime - (length / speed + tick)
-
-
-def get_overall_delay():
-    delay = 0
-    for passanger in passengers:
-        if(passanger.delay > 0):
-            delay += passanger.delay
-    print("Gesamtverspätung: ", delay)
-
-
-"""
-    #######################################
-    #######################################
-    ######## Fixing Train Station #########
-    #######################################
-    #######################################
-"""
-
-def initializeCurrentStations():
-    for train in trains:
-        train.currentStation=get_station_by_id(train.startingPosition)
-
-
-"""
-    #######################################
-    #######################################
-    ########### Route Comparer ############
-    #######################################
-    #######################################
-"""
-
-
+#region Route generator
+#region Route calculation
 def calculate_route():
     for passenger in passengers:
         routes.append([shortest_path(lines_graph, source=passenger.depatureStation.id,
@@ -235,8 +115,9 @@ def pattern_matching():
             elif(len(current_route)-ix>len(comparing_route)-j):
                 break
     return matching_routes
+#endregion
 
-
+#region Find possible trains
 def check_wildcard_trains():
     possible_trains = []
     for train in wildcard_trains:
@@ -279,8 +160,9 @@ def determine_possible_trains_for_route(start_node):
         possible_trains.append(check_for_nearest_placed_train(start_node))
     possible_trains.sort(key=lambda x: x.capacity)
     return possible_trains
+#endregion
 
-
+#region Route assignment
 def calculate_approximate_time_needed(train, routes, start_station, end_station):
     length = shortest_path_length(
         lines_graph, source=start_station.id, target=end_station.id, weight="weight")
@@ -290,50 +172,14 @@ def calculate_approximate_time_needed(train, routes, start_station, end_station)
     stop_count = len(set(final_stations))
     return math.ceil(length / train.speed) + stop_count
 
-
-def get_station_by_id(id):
-    for i in range(0, len(stations)):
-        if(stations[i].id == id):
-            return stations[i]
-
-
-def get_passenger_by_id(id):
-    for i in range(0, len(passengers)):
-        if(passengers[i].id == id):
-            return passengers[i]
-
-
-def get_line_by_id(id):
-    for line in lines:
-        if (line.id == id):
-            return line
-
-
-def isEmpty(list):
-    if(len(list) == 0):
-        return True
-    else:
-        return False
-
-
-def generate_final_route(matching_routes, max_capacity):
-    times = {}
-    for station in matching_routes[0][0]:
-        times[station]=0
+def generate_final_route(matching_routes, current_capacity, max_capacity):
     final_route = []
     for route in matching_routes:
-        hasCapacity = True
-        curTimes = times.copy()
-        for i in range(0,len(route[0])-1):
-            times[route[0][i]]+=route[1]
-            if(times[route[0][i]]>max_capacity):
-                times = curTimes
-                hasCapacity = False
-                break
-
-        if(hasCapacity):
+        if((current_capacity+route[1]) <= max_capacity):
             final_route.append(route)
-    return [max(times.values()),final_route]
+            current_capacity+=route[1]
+    return final_route
+
 
 def determine_best_train_for_capacity(trains, capacity):
     for train in trains:
@@ -405,14 +251,17 @@ def build_passenger_array(final_route):
                 station_passengers.append(get_passenger_by_id(route[3]))
         passengers.append(station_passengers)
     return passengers
-
+#endregion
 
 def route_generation():
     final_route = []
     chosen_train = None
+    current_capacity = 0
 
     #get route and matching subroutes
     matching_routes=pattern_matching()
+    print("New route")
+    print(matching_routes)
     
     #get start-/endstation
     start_station=get_station_by_id(matching_routes[0][0][0])
@@ -421,14 +270,19 @@ def route_generation():
     # get trains nearby or at start_station
     possible_trains = determine_possible_trains_for_route(start_station)
 
+    # add father route (longest route) to final route
+    final_route.append(matching_routes[0])
+
+    # add passengers from father route to capacity count
+    current_capacity += matching_routes[0][1]
+    # remove father route from matching_routes
+    matching_routes.remove(matching_routes[0])
     # sort matching_routes by group size
     matching_routes.sort(key=lambda x: x[2]*x[1])
     #get train with most capacity (possible_trains are sorted by capacity)
     max_capacity=possible_trains[len(possible_trains)-1].capacity
     #add matching_routes to final_routes based on available capacity
-    routeData = generate_final_route(matching_routes,max_capacity)
-    current_capacity=routeData[0]
-    final_route+=routeData[1]
+    final_route+=generate_final_route(matching_routes,current_capacity,max_capacity)
     #get best train for needed route capacity
     chosen_train=determine_best_train_for_capacity(possible_trains,current_capacity)
     
@@ -440,7 +294,9 @@ def route_generation():
     clear_assigned_routes(final_route)
 
     #Max Capacity Analyse verfeinern, da zwischendurch ja auch Passagiere aussteigen
+#endregion
 
+#region Tick simulation
 def move_train(train):
     if(train.line == None):
         if(len(train.path) > 1):
@@ -516,37 +372,52 @@ def move_trains():
                 else:
                     newPassengers.append(passenger)
             train.boardedPassengers = newPassengers
+#endregion
+
+#region Utils
+def get_station_by_id(id):
+    for i in range(0, len(stations)):
+        if(stations[i].id == id):
+            return stations[i]
 
 
-"""
-    #######################################
-    #######################################
-    ############### Main ##################
-    #######################################
-    #######################################
-"""
-if __name__ == "__main__":
-    load_input()
-    group_passengers_by_DepartureStation()
-    group_trains_by_startingPosition()
-    sort_passengers_by_arrivalTime()
-    sort_trains_by_speed()
-    build_lines_graph()
-    # draw_lines_graph()
-    fixTrainStationLinks()
-    calculate_route()
-    sort_routes_by_length()
-    
-    while(len(routes)>0):
-        route_generation()
-    
+def get_passenger_by_id(id):
+    for i in range(0, len(passengers)):
+        if(passengers[i].id == id):
+            return passengers[i]
+
+
+def get_line_by_id(id):
+    for line in lines:
+        if (line.id == id):
+            return line
+
+
+def isEmpty(list):
+    if(len(list) == 0):
+        return True
+    else:
+        return False
+
+def get_overall_delay():
+    delay = 0
+    for passanger in passengers:
+        if(passanger.delay > 0):
+            delay += passanger.delay
+    print("Gesamtverspätung: ", delay)
+
+def initializeCurrentStations():
+    for train in trains:
+        train.currentStation=get_station_by_id(train.startingPosition)
+
+def printTrainPassengerAssignment():
     for train in trains:
         print(train.id,": ",train.time_needed)
-        path=""
+        pathString=""
         for station in train.path:
             if(station!=None):
-                path+=station.id+" "
-        print(path)
+                pathString+=station.id+" "
+        print(pathString)
         passengersString=""
         for passengers_station in train.passengers:
             passengersString+="["
@@ -554,6 +425,22 @@ if __name__ == "__main__":
                 passengersString+=passenger.id+" "
             passengersString+="]"
         print(passengersString)
+#endregion
+
+#region Main
+if __name__ == "__main__":
+    load_input()
+    build_lines_graph()
+    # draw_lines_graph()
+    initializeCurrentStations()
+    calculate_route()
+    sort_routes_by_length()
+    
+    while(len(routes)>0):
+        route_generation()
+        print(len(routes))
+
+    printTrainPassengerAssignment()
 
     passengersAvailable = True
     while (passengersAvailable):
@@ -568,3 +455,4 @@ if __name__ == "__main__":
 
     write_output()
     get_overall_delay()
+#endregion
