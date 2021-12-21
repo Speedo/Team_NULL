@@ -16,7 +16,7 @@ class Passengers:
     def addAction(self, time, action, target=""):
         self.actions.append(Action(time, action, target))
         if(action == "Detrain"):
-            self.delay = self.targetTime-time
+            self.delay = time-self.targetTime
             self.finished = True
 
     def write(self):
