@@ -1,5 +1,5 @@
 from networkx.generators.expanders import paley_graph
-from numpy import Inf, inf
+from numpy import Inf, inf, true_divide
 from classes.line import Line
 from classes.passengers import Passengers
 from classes.station import Station
@@ -195,7 +195,6 @@ def get_overall_delay():
 def fixTrainStationLinks():
     for train in trains:
         for station in stations:
-            #print(train.startingPosition, station.id)
             if train.startingPosition == station.id:
                 train.currentStation = station
 
@@ -320,14 +319,24 @@ def isEmpty(list):
         return False
 
 
-def generate_final_route(matching_routes, current_capacity, max_capacity):
+def generate_final_route(matching_routes, max_capacity):
+    times = {}
+    for station in matching_routes[0][0]:
+        times[station]=0
     final_route = []
     for route in matching_routes:
-        if((current_capacity+route[1]) <= max_capacity):
-            final_route.append(route)
-            current_capacity+=route[1]
-    return final_route
+        hasCapacity = True
+        curTimes = times
+        for i in range(0,len(route[0])-1):
+            times[route[0][i]]+=route[1]
+            if(times[route[0][i]]>max_capacity):
+                times = curTimes
+                hasCapacity = False
+                break
 
+        if(hasCapacity):
+            final_route.append(route)
+    return [max(times.values()),final_route]
 
 def determine_best_train_for_capacity(trains, capacity):
     for train in trains:
@@ -404,7 +413,6 @@ def build_passenger_array(final_route):
 def route_generation():
     final_route = []
     chosen_train = None
-    current_capacity = 0
 
     #get route and matching subroutes
     matching_routes=pattern_matching()
@@ -416,19 +424,14 @@ def route_generation():
     # get trains nearby or at start_station
     possible_trains = determine_possible_trains_for_route(start_station)
 
-    # add father route (longest route) to final route
-    final_route.append(matching_routes[0])
-
-    # add passengers from father route to capacity count
-    current_capacity += matching_routes[0][1]
-    # remove father route from matching_routes
-    matching_routes.remove(matching_routes[0])
     # sort matching_routes by group size
     matching_routes.sort(key=lambda x: x[2]*x[1])
     #get train with most capacity (possible_trains are sorted by capacity)
     max_capacity=possible_trains[len(possible_trains)-1].capacity
     #add matching_routes to final_routes based on available capacity
-    final_route+=generate_final_route(matching_routes,current_capacity,max_capacity)
+    routeData = generate_final_route(matching_routes,max_capacity)
+    current_capacity=routeData[0]
+    final_route+=routeData[1]
     #get best train for needed route capacity
     chosen_train=determine_best_train_for_capacity(possible_trains,current_capacity)
     
@@ -540,20 +543,20 @@ if __name__ == "__main__":
     while(len(routes)>0):
         route_generation()
     
-    # for train in trains:
-    #     print(train.id,": ",train.time_needed)
-    #     path=""
-    #     for station in train.path:
-    #         if(station!=None):
-    #             path+=station.id+" "
-    #     print(path)
-    #     passengers=""
-    #     for passengers_station in train.passengers:
-    #         passengers+="["
-    #         for passenger in passengers_station:
-    #             passengers+=passenger.id+" "
-    #         passengers+="]"
-    #     print(passengers)
+    for train in trains:
+        print(train.id,": ",train.time_needed)
+        path=""
+        for station in train.path:
+            if(station!=None):
+                path+=station.id+" "
+        print(path)
+        passengersString=""
+        for passengers_station in train.passengers:
+            passengersString+="["
+            for passenger in passengers_station:
+                passengersString+=passenger.id+" "
+            passengersString+="]"
+        print(passengersString)
 
     passengersAvailable = True
     while (passengersAvailable):
@@ -566,6 +569,5 @@ if __name__ == "__main__":
                 passengersAvailable = True
                 break
 
-    # ch0eck_if_route_contains_others()
     write_output()
     get_overall_delay()
