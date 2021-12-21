@@ -191,12 +191,9 @@ def get_overall_delay():
     #######################################
 """
 
-
-def fixTrainStationLinks():
+def initializeCurrentStations():
     for train in trains:
-        for station in stations:
-            if train.startingPosition == station.id:
-                train.currentStation = station
+        train.currentStation=get_station_by_id(train.startingPosition)
 
 
 """
@@ -326,7 +323,7 @@ def generate_final_route(matching_routes, max_capacity):
     final_route = []
     for route in matching_routes:
         hasCapacity = True
-        curTimes = times
+        curTimes = times.copy()
         for i in range(0,len(route[0])-1):
             times[route[0][i]]+=route[1]
             if(times[route[0][i]]>max_capacity):
