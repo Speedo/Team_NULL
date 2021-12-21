@@ -235,10 +235,8 @@ def pattern_matching():
                 j += 1
             if (ix == len(current_route)):
                 matching_routes.append(routes[i])
-                #print(current_route,": ",True, ix)
                 break
-            elif(len(current_route)-ix > len(comparing_route)-j):
-                #print(current_route,": ",False, ix)
+            elif(len(current_route)-ix>len(comparing_route)-j):
                 break
     return matching_routes
 
@@ -327,8 +325,7 @@ def generate_final_route(matching_routes, current_capacity, max_capacity):
     for route in matching_routes:
         if((current_capacity+route[1]) <= max_capacity):
             final_route.append(route)
-            current_capacity += route[1]
-            # print(route)
+            current_capacity+=route[1]
     return final_route
 
 
@@ -337,61 +334,55 @@ def determine_best_train_for_capacity(trains, capacity):
         if(train.capacity >= capacity):
             return train
 
+def modify_train_route(train,route,passengers):
+    for station in route:
+        train.path.append(get_station_by_id(station))
+    train.passengers+=(passengers)
 
-def choose_train(train, time_needed, start_station, end_station, final_route):
-    passenger_array = build_passenger_array(final_route)
-    main_route = final_route[0][0]
-
+def choose_wildcard_train(train,start_station):
     if(train in wildcard_trains):
         wildcard_trains.remove(train)
         train.startingPosition = start_station
         train.currentStation = start_station
         placed_trains.append(train)
 
-    if (train.endStation == None):
-        if (train.currentStation.id == main_route[0]):
-            for station in main_route:
-                train.path.append(get_station_by_id(station))
-            train.passengers += (passenger_array)
+def add_transition_route(train,start_station,end_station):
+    transition_stations = shortest_path(lines_graph, source=start_station.id, target=end_station)
+    train.time_needed+=calculate_approximate_time_needed(train,[],start_station,get_station_by_id(end_station))
+    if(not isEmpty(train.path)):
+        train.path.pop()
+        train.passengers.pop()
+    for station in transition_stations:
+        train.path.append(get_station_by_id(station))
+        train.passengers.append("")
+
+def choose_train(train,time_needed,start_station,end_station,final_route):
+    passenger_array=build_passenger_array(final_route)
+    main_route=final_route[0][0]
+
+    choose_wildcard_train(train,start_station)
+    
+    if (train.endStation==None):
+        if (train.currentStation.id==main_route[0]):
+            modify_train_route(train,main_route,passenger_array)
         else:
-            transition_stations = shortest_path(
-                lines_graph, source=train.currentStation.id, target=main_route[0])
-            train.time_needed += calculate_approximate_time_needed(
-                train, [], train.currentStation, get_station_by_id(main_route[0]))
-            for station in transition_stations:
-                train.path.append(get_station_by_id(station))
-                train.passengers.append("")
+            add_transition_route(train,train.currentStation,main_route[0])
             train.path.pop()
             train.passengers.pop()
-            for station in main_route:
-                train.path.append(get_station_by_id(station))
-            train.passengers += (passenger_array)
-    elif (train.endStation.id == main_route[0]):
-        # remove last station from train's path and passengers, because it is equal to the first in the new route and passenger_array
+            modify_train_route(train,main_route,passenger_array)
+    elif (train.endStation.id==main_route[0]):
+        #remove last station from train's path and passengers, because it is equal to the first in the new route and passenger_array
         train.path.pop()
         train.passengers.pop()
-        for station in main_route:
-            train.path.append(get_station_by_id(station))
-        train.passengers += (passenger_array)
+        modify_train_route(train,main_route,passenger_array)
     else:
-        transition_stations = shortest_path(
-            lines_graph, source=train.endStation.id, target=main_route[0])
-        train.time_needed += calculate_approximate_time_needed(
-            train, [], train.endStation, get_station_by_id(main_route[0]))
+        add_transition_route(train,train.endStation,main_route[0])
         train.path.pop()
         train.passengers.pop()
-        for station in transition_stations:
-            train.path.append(get_station_by_id(station))
-            train.passengers.append("")
-        train.path.pop()
-        train.passengers.pop()
-        for station in main_route:
-            train.path.append(get_station_by_id(station))
-        train.passengers += (passenger_array)
+        modify_train_route(train,main_route,passenger_array)
 
-    train.time_needed += time_needed
-    train.endStation = end_station
-
+    train.time_needed+=time_needed
+    train.endStation=end_station
 
 def clear_assigned_routes(final_route):
     for route in final_route:
@@ -415,17 +406,12 @@ def route_generation():
     chosen_train = None
     current_capacity = 0
 
-    # Debugging
-    #print("Next Train")
-
-    # get route and matching subroutes
-    matching_routes = pattern_matching()
-
-    # get start-/endstation
-    start_station = get_station_by_id(matching_routes[0][0][0])
-    end_station = get_station_by_id(
-        matching_routes[0][0][len(matching_routes[0][0])-1])
-    #print("Station ID: ",start_station.id)
+    #get route and matching subroutes
+    matching_routes=pattern_matching()
+    
+    #get start-/endstation
+    start_station=get_station_by_id(matching_routes[0][0][0])
+    end_station=get_station_by_id(matching_routes[0][0][len(matching_routes[0][0])-1])
 
     # get trains nearby or at start_station
     possible_trains = determine_possible_trains_for_route(start_station)
@@ -439,34 +425,21 @@ def route_generation():
     matching_routes.remove(matching_routes[0])
     # sort matching_routes by group size
     matching_routes.sort(key=lambda x: x[2]*x[1])
-    # get train with most capacity (possible_trains are sorted by capacity)
-    max_capacity = possible_trains[len(possible_trains)-1].capacity
-    # add matching_routes to final_routes based on available capacity
-    final_route += generate_final_route(matching_routes,
-                                        current_capacity, max_capacity)
-    # get best train for needed route capacity
-    chosen_train = determine_best_train_for_capacity(
-        possible_trains, current_capacity)
-
-    #print("Chosen Train ID: ",chosen_train.id)
-
-    # calculate time train needs for the route (approximately)
-    time_needed = calculate_approximate_time_needed(
-        chosen_train, final_route, start_station, end_station)
-
-    choose_train(chosen_train, time_needed,
-                 start_station, end_station, final_route)
-
-    #print("Before clearing")
-    # print(len(routes))
+    #get train with most capacity (possible_trains are sorted by capacity)
+    max_capacity=possible_trains[len(possible_trains)-1].capacity
+    #add matching_routes to final_routes based on available capacity
+    final_route+=generate_final_route(matching_routes,current_capacity,max_capacity)
+    #get best train for needed route capacity
+    chosen_train=determine_best_train_for_capacity(possible_trains,current_capacity)
+    
+    #calculate time train needs for the route (approximately)
+    time_needed=calculate_approximate_time_needed(chosen_train,final_route,start_station,end_station)
+    
+    choose_train(chosen_train,time_needed,start_station,end_station,final_route)
 
     clear_assigned_routes(final_route)
 
-    #print("After clearing")
-    # print(len(routes))
-
-    # Max Capacity Analyse verfeinern, da zwischendurch ja auch Passagiere aussteigen
-
+    #Max Capacity Analyse verfeinern, da zwischendurch ja auch Passagiere aussteigen
 
 def move_train(train):
     if(train.line == None):
@@ -563,12 +536,10 @@ if __name__ == "__main__":
     fixTrainStationLinks()
     calculate_route()
     sort_routes_by_length()
-
-    while(len(routes) > 0):
-        #print("Index: ",test_index)
+    
+    while(len(routes)>0):
         route_generation()
-        # print(len(routes))
-
+    
     # for train in trains:
     #     print(train.id,": ",train.time_needed)
     #     path=""
@@ -583,6 +554,7 @@ if __name__ == "__main__":
     #             passengers+=passenger.id+" "
     #         passengers+="]"
     #     print(passengers)
+
     passengersAvailable = True
     while (passengersAvailable):
         move_trains()
