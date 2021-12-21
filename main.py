@@ -298,73 +298,87 @@ def route_generation():
 
 #region Tick simulation
 def move_train(train):
+    #check if train is on line
     if(train.line == None):
+        #if train is not on line and has path
         if(len(train.path) > 1):
+            #get line
             lineId = lines_graph.get_edge_data(
                 train.path[0].id, train.path[1].id)["attr"]
             line = get_line_by_id(lineId)
-            # Wenn Line frei befahren
+            #check if line has capacity free
             if(line.capacity > 0):
+                #handle capacity
                 line.capacity -= 1
                 train.currentStation.capacity += 1
+                #assign train to line
                 train.currentStation = None
                 train.line = line
                 train.addAction(simulationTime.currentTick,
                                 "Depart", train.line.id)
                 move_train_on_line(train)
     else:
+        #if train is on line -> move train
         move_train_on_line(train)
 
 
 def move_train_on_line(train):
-    # Zug ziehen
+    #increase train line progress
     train.progress += 1/(train.line.length/train.speed)
+    #enter station if station reached and station has space
     if(train.progress >= 1 and train.path[0].capacity > 0):
-        # Station erreicht
+        #remove station from path
         train.path.pop(0)
+        #assign station
         train.currentStation = train.path[0]
+        #handle station capacity
         train.currentStation.capacity -= 1
+        #reset train line data
         train.progress = 0
         train.line.capacity += 1
+        #remove old passengers
         train.passengers.pop(0)
         train.line = None
 
 
 def move_trains():
     for train in trains:
-        # Check if train has path
+        #check if train has path
         if(len(train.path) > 1):
+            #check if train is in target station
             if(train.currentStation == train.path[0]):
-                # Passagiere an dieser Position einsteigen
+                #detrain passengers
                 hasDetrainedPassengers = False
                 newPassengers = []
                 for passenger in train.boardedPassengers:
                     if(train.currentStation == passenger.destinationStation):
                         passenger.addAction(
                             simulationTime.currentTick, "Detrain")
-                        # train.boardedPassengers.remove(passenger)
                         hasDetrainedPassengers = True
                     else:
                         newPassengers.append(passenger)
                 train.boardedPassengers = newPassengers
+                #check if train has passengers to board
                 if(len(train.passengers) > 0):
+                    #check if train has passengers on this station to board
                     if(len(train.passengers[0]) > 0):
-                        # Passagiere einsteigen lassen
+                        #board passengers
                         for passenger in train.passengers[0]:
                             passenger.addAction(
                                 simulationTime.currentTick, "Board", train.id)
                             train.boardedPassengers.append(passenger)
                         train.passengers[0] = []
                     elif(not hasDetrainedPassengers):
-                        # Oder weiterfahren (Überprüfen ob Strecke frei)
+                        #else move train to next station
                         move_train(train)
                 else:
-                    # Oder weiterfahren (Überprüfen ob Strecke frei)
+                    #else move train to next station
                     move_train(train)
             else:
-                # Richtung train.path[0] fahren (Überprüfen ob Strecke frei)
+                #else move forward train to target station
                 move_train(train)
         else:
+            #detrain passengers on final station of train
             newPassengers = []
             for passenger in train.boardedPassengers:
                 if(train.currentStation == passenger.destinationStation):
