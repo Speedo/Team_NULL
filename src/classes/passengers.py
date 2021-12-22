@@ -25,3 +25,4 @@ class Passengers:
         for action in self.actions:
             output += action.toString()
         output += "\n"
+        return output
