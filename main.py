@@ -401,9 +401,9 @@ def isEmpty(list):
 
 def get_overall_delay():
     delay = 0
-    for passanger in passengers:
-        if(passanger.delay > 0):
-            delay += passanger.delay
+    for passenger in passengers:
+        if(passenger.delay > 0):
+            delay += passenger.delay
     print("Gesamtverspätung: ", delay)
 
 def initializeCurrentStations():
