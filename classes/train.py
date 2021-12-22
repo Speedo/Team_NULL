@@ -12,7 +12,7 @@ class Train:
         self.actions = []
         self.line = None
         self.progress = 0
-        self.time_needed = 0
+        self.timeNeeded = 0
         self.endStation = None
         self.path = []
         self.passengers = []
