@@ -465,7 +465,7 @@ def getOverallDelay():
     for passenger in passengers:
         if(passenger.delay > 0):
             delay += passenger.delay
-    print("Gesamtverspätung: ", delay)
+    #print("Gesamtverspätung: ", delay)
 
 def initializeCurrentStations():
     for train in trains:
@@ -473,19 +473,19 @@ def initializeCurrentStations():
 
 def printTrainPassengerAssignment():
     for train in trains:
-        print(train.id,": ",train.timeNeeded)
+        #print(train.id,": ",train.timeNeeded)
         pathString=""
         for station in train.path:
             if(station!=None):
                 pathString+=station.id+" "
-        print(pathString)
+        #print(pathString)
         passengersString=""
         for passengersStation in train.passengers:
             passengersString+="["
             for passenger in passengersStation:
                 passengersString+=passenger.id+" "
             passengersString+="]"
-        print(passengersString)
+        #print(passengersString)
 #endregion
 
 #region Main
