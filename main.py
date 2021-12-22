@@ -82,16 +82,17 @@ def drawLinesGraph():
 
 #region Route generator
 #region Route calculation
+#calculates shortes path for every passenger and saves [[path],groupSize,targetTime,id] in route
 def calculateRoute():
     for passenger in passengers:
         routes.append([shortest_path(linesGraph, source=passenger.depatureStation.id,
                       target=passenger.destinationStation.id), passenger.groupSize, passenger.targetTime, passenger.id])
 
-
+#sorts routes by length (longest paths first: optimization for patternMatching)
 def sortRoutesByLength():
     routes.sort(key=lambda x: (len(x[0]), -x[2]), reverse=True)
 
-
+#compares first path in routes with every other path of routes to find subroutes (paths that fit into first path)
 def patternMatching():
     comparingRoute = routes[0][0]
     matchingRoutes = []
@@ -115,14 +116,8 @@ def patternMatching():
 #endregion
 
 #region Find possible trains
-def checkWildcardTrains():
-    possibleTrains = []
-    for train in wildcardTrains:
-        possibleTrains.append(train)
-    return possibleTrains
-
-
-def checkForPlacedTrains(station):
+#gets all trains which are placed at the given station
+def getPossiblePlacedTrains(station):
     placedTrains.sort(key=lambda x: x.timeNeeded)
     possibleTrains = []
     for train in placedTrains:
@@ -134,60 +129,68 @@ def checkForPlacedTrains(station):
                 possibleTrains.append(train)
     return possibleTrains
 
-
-def checkForNearestPlacedTrain(station):
-    shortestDistance = inf
+#gets nearest (considering: distance,speed,timeNeeded) train to the given station
+def getNearestPossibleTrain(station):
+    shortestTime = inf
     nearestTrain = None
     placedTrains.sort(key=lambda x: x.timeNeeded)
     for train in placedTrains:
-        distance = shortest_path_length(
-            linesGraph, source=train.currentStation.id, target=station.id, weight="weight")
-        if(train.timeNeeded+math.ceil(distance/train.speed) < shortestDistance):
-            shortestDistance = train.timeNeeded + \
-                math.ceil(distance/train.speed)
+        distance = shortest_path_length(linesGraph, source=train.currentStation.id, target=station.id, weight="weight")
+        time = train.timeNeeded+math.ceil(distance/train.speed)
+        if(time < shortestTime):
+            shortestTime = time
             nearestTrain = train
     return nearestTrain
 
 
-def determinePossibleTrainsForRoute(startNode):
-    possibleTrains = checkForPlacedTrains(startNode)
+def getPossibleTrainsForRoute(startNode):
+    possibleTrains = getPossiblePlacedTrains(startNode) #add trains which are currently at the start node
+    #if no placed train is at the needed station (startNode)
     if(isEmpty(possibleTrains)):
-        possibleTrains = checkWildcardTrains()
+        possibleTrains = wildcardTrains #add remaining wildcard trains
+    #if no wildcard train remaining
     if(isEmpty(possibleTrains)):
-        possibleTrains.append(checkForNearestPlacedTrain(startNode))
-    possibleTrains.sort(key=lambda x: x.capacity)
+        possibleTrains.append(getNearestPossibleTrain(startNode)) #add nearest train
+    possibleTrains.sort(key=lambda x: x.capacity) #sort possible trains by capacity
     return possibleTrains
 #endregion
 
 #region Route assignment
+#calculates the approximate time a train needs for a given route
 def calculateApproximateTimeNeeded(train, routes, startStation, endStation):
-    length = shortest_path_length(
-        linesGraph, source=startStation.id, target=endStation.id, weight="weight")
+    length = shortest_path_length(linesGraph, source=startStation.id, target=endStation.id, weight="weight") #get length of route
     finalStations = []
     for route in routes:
-        finalStations.append(route[0][len(route[0])-1])
-    stopCount = len(set(finalStations))
+        finalStations.append(route[0][0]) #add boarding station
+        finalStations.append(route[0][len(route[0])-1]) #add detraining station
+    stopCount = len(set(finalStations)) #get amount of stops where passengers board or detrain
     return math.ceil(length / train.speed) + stopCount
 
+#generates a final route and which passengers to carry based on the available train capacity
 def generateFinalRoute(matchingRoutes, currentCapacity, maxCapacity):
     finalRoute = []
     for route in matchingRoutes:
+        #if train has enough capacity for the passengers
         if((currentCapacity+route[1]) <= maxCapacity):
-            finalRoute.append(route)
-            currentCapacity+=route[1]
+            finalRoute.append(route) #add them to finalRoute
+            currentCapacity+=route[1] #increase current capacity by passenger groupSize
     return finalRoute
 
-
-def determineBestTrainForCapacity(trains, capacity):
+#gets the train with the minimum capacity needed to carry a given number of passengers
+#(train array needs to be sorted ascending by capacity)
+def getBestTrainForCapacity(trains, capacity):
     for train in trains:
-        if(train.capacity >= capacity):
+        if(train.capacity >= capacity): #the first train which fits the capacity is returned
             return train
 
+#adds given route and passengers to a train
 def modifyTrainRoute(train,route,passengers):
     for station in route:
-        train.path.append(getStationById(station))
-    train.passengers+=(passengers)
+        train.path.append(getStationById(station)) #add stations of route
+    train.passengers+=(passengers) #add passengers
 
+#if chosen train is wildcard train place it on startStation and add it to placed trains
+# + remove it from wildcard trains
 def chooseWildcardTrain(train,startStation):
     if(train in wildcardTrains):
         wildcardTrains.remove(train)
@@ -195,6 +198,7 @@ def chooseWildcardTrain(train,startStation):
         train.currentStation = startStation
         placedTrains.append(train)
 
+#
 def addTransitionRoute(train,startStation,endStation):
     transitionStations = shortest_path(linesGraph, source=startStation.id, target=endStation)
     train.timeNeeded+=calculateApproximateTimeNeeded(train,[],startStation,getStationById(endStation))
@@ -216,6 +220,7 @@ def chooseTrain(train,timeNeeded,startStation,endStation,finalRoute):
             modifyTrainRoute(train,mainRoute,passengerArray)
         else:
             addTransitionRoute(train,train.currentStation,mainRoute[0])
+            #remove last station from train's path and passengers, because it is equal to the first in the new route and passengerArray
             train.path.pop()
             train.passengers.pop()
             modifyTrainRoute(train,mainRoute,passengerArray)
@@ -226,18 +231,13 @@ def chooseTrain(train,timeNeeded,startStation,endStation,finalRoute):
         modifyTrainRoute(train,mainRoute,passengerArray)
     else:
         addTransitionRoute(train,train.endStation,mainRoute[0])
+        #remove last station from train's path and passengers, because it is equal to the first in the new route and passengerArray
         train.path.pop()
         train.passengers.pop()
         modifyTrainRoute(train,mainRoute,passengerArray)
 
     train.timeNeeded+=timeNeeded
     train.endStation=endStation
-
-def clearAssignedRoutes(finalRoute):
-    for route in finalRoute:
-        if(route in routes):
-            routes.remove(route)
-
 
 def buildPassengerArray(finalRoute):
     passengers = []
@@ -248,6 +248,13 @@ def buildPassengerArray(finalRoute):
                 stationPassengers.append(getPassengerById(route[3]))
         passengers.append(stationPassengers)
     return passengers
+
+def clearAssignedRoutes(finalRoute):
+    for route in finalRoute:
+        #if route in routes
+        if(route in routes):
+            #remove route from routes (passenger is already assigned)
+            routes.remove(route)
 #endregion
 
 def routeGeneration():
@@ -263,7 +270,7 @@ def routeGeneration():
     endStation=getStationById(matchingRoutes[0][0][len(matchingRoutes[0][0])-1])
 
     # get trains nearby or at startStation
-    possibleTrains = determinePossibleTrainsForRoute(startStation)
+    possibleTrains = getPossibleTrainsForRoute(startStation)
 
     # add father route (longest route) to final route
     finalRoute.append(matchingRoutes[0])
@@ -279,16 +286,16 @@ def routeGeneration():
     #add matchingRoutes to finalRoutes based on available capacity
     finalRoute+=generateFinalRoute(matchingRoutes,currentCapacity,maxCapacity)
     #get best train for needed route capacity
-    chosenTrain=determineBestTrainForCapacity(possibleTrains,currentCapacity)
+    chosenTrain=getBestTrainForCapacity(possibleTrains,currentCapacity)
     
     #calculate time train needs for the route (approximately)
     timeNeeded=calculateApproximateTimeNeeded(chosenTrain,finalRoute,startStation,endStation)
     
+    #set all variables in chosenTrain
     chooseTrain(chosenTrain,timeNeeded,startStation,endStation,finalRoute)
 
+    #delete assigned passengers from routes
     clearAssignedRoutes(finalRoute)
-
-    #Max Capacity Analyse verfeinern, da zwischendurch ja auch Passagiere aussteigen
 #endregion
 
 #region Tick simulation

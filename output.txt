@@ -8,9 +8,7 @@
 4 Depart L8
 
 [Train:T3]
-0 Depart L1
-4 Depart L5
-7 Depart L6
+1 Depart L6
 
 [Train:T4]
 1 Depart L1
@@ -156,8 +154,8 @@
 15 Detrain
 
 [Passenger:P29]
-6 Board T3
-9 Detrain
+0 Board T3
+3 Detrain
 
 [Passenger:P30]
 14 Board T1
