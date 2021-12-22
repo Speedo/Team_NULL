@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from networkx.algorithms.shortest_paths import shortest_path
 from networkx.algorithms.shortest_paths.generic import shortest_path_length
 import math
+import sys
 
 #region Variables
 trains = []
@@ -24,45 +25,89 @@ simulationTime = 0
 
 #region In/Output
 def loadInput():
-    with open('input.txt') as f:
-        file = f.readlines()
-        for i in file:
-            data = i.split(" ")
-            if data[0][0] == "S":
-                stations.append(
-                    Station(data[0], int(data[1].replace("\\n", ""))))
-            elif data[0][0] == "L":
-                line = Line(data[0], float(data[3]),
-                            int(data[4].replace("\\n", "")))
-                for station in stations:
-                    if(station.id == data[1] or station.id == data[2]):
-                        line.addStation(station)
-                lines.append(line)
-            elif (data[0][0] == "T"):
-                curTrain = Train(data[0], data[1], float(
-                    data[2]), int(data[3].replace("\\n", "")))
-                trains.append(curTrain)
-                if (curTrain.startingPosition == "*"):
-                    wildcardTrains.append(curTrain)
-                else:
-                    placedTrains.append(curTrain)
-            elif data[0][0] == "P":
-                passenger = Passengers(data[0], int(
-                    data[3]), int(data[4].replace("\\n", "")))
-                for station in stations:
-                    if station.id == data[1]:
-                        passenger.depatureStation = station
-                    elif station.id == data[2]:
-                        passenger.destinationStation = station
-                passengers.append(passenger)
+    file = sys.stdin.readlines()
+    for i in file:
+        data = i.split(" ")
+        if data[0][0] == "S":
+            stations.append(
+                Station(data[0], int(data[1].replace("\\n", ""))))
+        elif data[0][0] == "L":
+            line = Line(data[0], float(data[3]),
+                        int(data[4].replace("\\n", "")))
+            for station in stations:
+                if(station.id == data[1] or station.id == data[2]):
+                    line.addStation(station)
+            lines.append(line)
+        elif (data[0][0] == "T"):
+            curTrain = Train(data[0], data[1], float(
+                data[2]), int(data[3].replace("\\n", "")))
+            trains.append(curTrain)
+            if (curTrain.startingPosition == "*"):
+                wildcardTrains.append(curTrain)
+            else:
+                placedTrains.append(curTrain)
+        elif data[0][0] == "P":
+            passenger = Passengers(data[0], int(
+                data[3]), int(data[4].replace("\\n", "")))
+            for station in stations:
+                if station.id == data[1]:
+                    passenger.depatureStation = station
+                elif station.id == data[2]:
+                    passenger.destinationStation = station
+            passengers.append(passenger)
 
+#Old Textfile based version
+# def loadInput():
+#     with open('input.txt') as f:
+#         file = f.readlines()
+#         for i in file:
+#             data = i.split(" ")
+#             if data[0][0] == "S":
+#                 stations.append(
+#                     Station(data[0], int(data[1].replace("\\n", ""))))
+#             elif data[0][0] == "L":
+#                 line = Line(data[0], float(data[3]),
+#                             int(data[4].replace("\\n", "")))
+#                 for station in stations:
+#                     if(station.id == data[1] or station.id == data[2]):
+#                         line.addStation(station)
+#                 lines.append(line)
+#             elif (data[0][0] == "T"):
+#                 curTrain = Train(data[0], data[1], float(
+#                     data[2]), int(data[3].replace("\\n", "")))
+#                 trains.append(curTrain)
+#                 if (curTrain.startingPosition == "*"):
+#                     wildcardTrains.append(curTrain)
+#                 else:
+#                     placedTrains.append(curTrain)
+#             elif data[0][0] == "P":
+#                 passenger = Passengers(data[0], int(
+#                     data[3]), int(data[4].replace("\\n", "")))
+#                 for station in stations:
+#                     if station.id == data[1]:
+#                         passenger.depatureStation = station
+#                     elif station.id == data[2]:
+#                         passenger.destinationStation = station
+#                 passengers.append(passenger)
+
+#Outputs final Result to Standard Output as defined in the Requirements
 def writeOutput():
-    file = open("output.txt", "w")
-    file.close()
+    outPutString = ""
     for train in trains:
-        train.write()
+        outPutString += train.write()
     for passenger in passengers:
-        passenger.write()
+        outPutString += passenger.write()
+
+    print(outPutString)
+
+#Old Version for File-based Output
+#def writeOutput():
+#    file = open("output.txt", "w")
+#    file.close()
+#    for train in trains:
+#        train.write()
+#    for passenger in passengers:
+#        passenger.write()
 #endregion
 
 #region Lines graph
