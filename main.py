@@ -313,7 +313,7 @@ def moveTrains():
         #check if train has path
         if(len(train.path) > 1):
             #check if train is in target station
-            if(train.currentStation.id == train.path[0]):
+            if(train.currentStation != None and train.currentStation.id == train.path[0]):
                 #detrain passengers
                 hasDetrainedPassengers = False
                 newPassengers = []
@@ -331,9 +331,10 @@ def moveTrains():
                     if(len(train.passengers[0]) > 0):
                         #board passengers
                         for passenger in train.passengers[0]:
-                            getPassengerById(passenger).addAction(
+                            passengerObj = getPassengerById(passenger)
+                            passengerObj.addAction(
                                 simulationTime, "Board", train.id)
-                            train.boardedPassengers.append(getPassengerById(passenger))
+                            train.boardedPassengers.append(passengerObj)
                         train.passengers[0] = []
                     elif(not hasDetrainedPassengers):
                         #else move train to next station
@@ -416,19 +417,19 @@ if __name__ == "__main__":
         patternMatching()
         # print(len(paths))
 
-    printTrainPassengerAssignment()
+    #printTrainPassengerAssignment()
 
-    # passengersAvailable = True
-    # while (passengersAvailable):
-    #     moveTrains()
-    #     simulationTime+=1
-    #     passengersAvailable = False
-    #     for passenger in passengers:
-    #         if(not passenger.finished):
-    #             # print(passenger.id)
-    #             passengersAvailable = True
-    #             break
+    passengersAvailable = True
+    while (passengersAvailable):
+        moveTrains()
+        simulationTime+=1
+        passengersAvailable = False
+        for passenger in passengers:
+            if(not passenger.finished):
+                # print(passenger.id)
+                passengersAvailable = True
+                break
 
-    # writeOutput()
+    writeOutput()
     # getOverallDelay()
 #endregion
