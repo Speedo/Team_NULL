@@ -20,9 +20,9 @@ class Passengers:
             self.finished = True
 
     def write(self):
-        file = open("output.txt", "a")
-        file.write(f"[Passenger:{self.id}]\n")
+        output = ""
+        output += f"[Passenger:{self.id}]\n"
         for action in self.actions:
-            file.write(action.toString())
-        file.write("\n")
-        file.close()
+            output += action.toString()
+        output += "\n"
+        return output

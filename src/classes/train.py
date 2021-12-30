@@ -21,9 +21,9 @@ class Train:
         self.actions.append(Action(time, action, target))
 
     def write(self):
-        file = open("output.txt", "a")
-        file.write(f"[Train:{self.id}]\n")
+        output = ""
+        output += f"[Train:{self.id}]\n"
         for action in self.actions:
-            file.write(action.toString())
-        file.write("\n")
-        file.close()
+            output += action.toString()
+        output += "\n"
+        return output
