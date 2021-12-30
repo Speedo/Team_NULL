@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from networkx.algorithms.shortest_paths import shortest_path
 from networkx.algorithms.shortest_paths.generic import shortest_path_length
 import math
-from datetime import datetime
 import operator
 from itertools import repeat
 import sys
