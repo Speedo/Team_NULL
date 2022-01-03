@@ -337,7 +337,7 @@ def moveTrainOnLine(train):
     #increase train line progress
     train.progress += 1/(train.line.length/train.speed)
     #enter station if station reached and station has space
-    if(train.progress >= 1 and getLineById(train.path[0]).capacity > 0):
+    if(train.progress >= 1 and getStationById(train.path[0]).capacity > 0): #Bug - Check for Station and not Line Capacity - Ends in infinite loop
         #remove station from path
         train.path.pop(0)
         #assign station
@@ -425,7 +425,7 @@ def getOverallDelay():
     for passenger in passengers:
         if(passenger.delay > 0):
             delay += passenger.delay
-    #print("Gesamtverspätung: ", delay)
+    print("Gesamtverspätung: ", delay)
 
 def initializeCurrentStations():
     for train in placedTrains:
@@ -433,19 +433,19 @@ def initializeCurrentStations():
 
 def printTrainPassengerAssignment():
     for train in trains:
-        #print(train.id,": ",train.timeNeeded)
+        print(train.id,": ",train.timeNeeded)
         pathString=""
         for station in train.path:
             if(station!=None):
                 pathString+=station+" "
-        #print(pathString)
+        print(pathString)
         passengersString=""
         for passengersStation in train.passengers:
             passengersString+="["
             for passenger in passengersStation:
                 passengersString+=passenger+" "
             passengersString+="]"
-        #print(passengersString)
+        print(passengersString)
 #endregion
 
 #region Main
@@ -456,13 +456,10 @@ if __name__ == "__main__":
     initializeCurrentStations()
     calculateRoute()
     sortpathsByLength()
-    
     while(len(paths)>0):
         patternMatching()
-        # print(len(paths))
 
     #printTrainPassengerAssignment()
-
     passengersAvailable = True
     while (passengersAvailable):
         moveTrains()
@@ -470,10 +467,8 @@ if __name__ == "__main__":
         passengersAvailable = False
         for passenger in passengers:
             if(not passenger.finished):
-                # print(passenger.id)
                 passengersAvailable = True
                 break
-
     writeOutput()
     # getOverallDelay()
 #endregion
