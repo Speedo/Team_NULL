@@ -22,7 +22,7 @@ passengers = []
 paths = []
 currentTime = 0
 linesGraph = nx.Graph()
-simulationTime = 0
+simulationTime = 1
 #endregion
 
 #region In/Output
