@@ -1,16 +1,15 @@
-from numpy import inf
-from classes.line import Line
+from networkx.algorithms.shortest_paths.generic import shortest_path_length
+from networkx.algorithms.shortest_paths import shortest_path
 from classes.passengers import Passengers
 from classes.station import Station
 from classes.train import Train
-import networkx as nx
-import matplotlib.pyplot as plt
-from networkx.algorithms.shortest_paths import shortest_path
-from networkx.algorithms.shortest_paths.generic import shortest_path_length
-import math
-import operator
+from classes.line import Line
 from itertools import repeat
-import sys
+from networkx import Graph
+from operator import add
+from sys import stdin
+from numpy import inf
+from math import ceil
 
 #region Variables
 trains = []
@@ -21,7 +20,7 @@ lines = []
 passengers = []
 paths = []
 currentTime = 0
-linesGraph = nx.Graph()
+linesGraph = Graph()
 simulationTime = 1
 linesDict = {}
 stationsDict = {}
@@ -30,7 +29,7 @@ passengersDict = {}
 
 #region In/Output
 def loadInput():
-    file = sys.stdin.readlines()
+    file = stdin.readlines()
     inputType = ""
     for i in file:
         inputType = getInputType(i, inputType)
@@ -87,11 +86,6 @@ def buildLinesGraph():
     for line in lines:
         linesGraph.add_edge(
             line.stations[0], line.stations[1], weight=line.length, attr=line.id)
-
-def drawLinesGraph():
-    # Debug output um Graph zu zeichnen
-    nx.draw(linesGraph, with_labels=True)
-    plt.show()
 #endregion
 
 #region Route calculation
@@ -150,7 +144,7 @@ def patternMatching():
             if (i == len(currentPath)):
                 #add passenger to train's passenger array
 
-                potentialCapacity = list(map(operator.add, currentTrainCapacity, tempCapacity))
+                potentialCapacity = list(map(add, currentTrainCapacity, tempCapacity))
                 if(max(potentialCapacity)>maxCapacity):
                     break
 
@@ -203,7 +197,7 @@ def getNearestPossibleTrain(station):
     maxCapacity = 0
     for train in placedTrains:
         distance = shortest_path_length(linesGraph, source=train.currentStation.id, target=station.id, weight="weight")
-        time = train.timeNeeded+math.ceil(distance/train.speed)
+        time = train.timeNeeded+ceil(distance/train.speed)
         if(time < shortestTime):
             shortestTime = time
             nearestTrain = train
@@ -217,7 +211,7 @@ def getNearestPossibleTrain(station):
 def addApproximateTimeNeeded(train, currentTrainStops, startStation, endStation):
     length = shortest_path_length(linesGraph, source=startStation.id, target=endStation.id, weight="weight") #get length of route
     stopCount = sum(currentTrainStops)
-    train.timeNeeded += math.ceil(length / train.speed) + stopCount
+    train.timeNeeded += ceil(length / train.speed) + stopCount
 
 #gets the train with the minimum capacity needed to carry a given number of passengers
 #(train array needs to be sorted ascending by capacity)
@@ -390,13 +384,6 @@ def isEmpty(list):
         return True
     else:
         return False
-
-def getOverallDelay():
-    delay = 0
-    for passenger in passengers:
-        if(passenger.delay > 0):
-            delay += passenger.delay
-    print("Gesamtverspätung: ", delay)
 
 def initializeCurrentStations():
     for train in placedTrains:
