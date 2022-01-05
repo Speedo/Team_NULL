@@ -23,6 +23,9 @@ paths = []
 currentTime = 0
 linesGraph = nx.Graph()
 simulationTime = 1
+linesDict = {}
+stationsDict = {}
+passengersDict = {}
 #endregion
 
 #region In/Output
@@ -68,40 +71,6 @@ def getInputType(line, inputType):
         return 3
     return inputType
 
-#Old Textfile based version
-# def loadInput():
-#     with open('../input.txt') as f:
-#         file = f.readlines()
-#         inputType = ""
-#         for i in file:
-#             inputType = getInputType(i, inputType)
-#             data = i.split(" ")
-#             if(len(data)<2): continue
-#             if(data[0].find("#")!=-1): continue
-#             if inputType==0:
-#                 stations.append(
-#                     Station(data[0], int(data[1].replace("\\n", ""))))
-#             elif inputType==1:
-#                 line = Line(data[0], float(data[3]), int(data[4].replace("\\n", "")))
-#                 line.addStation(data[1])
-#                 line.addStation(data[2])
-#                 lines.append(line)
-#             elif inputType==2:
-#                 print(data)
-#                 curTrain = Train(data[0], data[1], float(
-#                     data[2]), int(data[3].replace("\\n", "")))
-#                 trains.append(curTrain)
-#                 if (curTrain.startingPosition == "*"):
-#                     wildcardTrains.append(curTrain)
-#                 else:
-#                     placedTrains.append(curTrain)
-#             elif inputType==3:
-#                 passenger = Passengers(data[0], int(
-#                     data[3]), int(data[4].replace("\\n", "")))
-#                 passenger.depatureStation = data[1]
-#                 passenger.destinationStation = data[2]
-#                 passengers.append(passenger)
-
 #Outputs final Result to Standard Output as defined in the Requirements
 def writeOutput():
     outPutString = ""
@@ -112,16 +81,6 @@ def writeOutput():
 
     print(outPutString)
 
-#Old Version for File-based Output
-#def writeOutput():
-#    file = open("output.txt", "w")
-#    file.close()
-#    for train in trains:
-#        train.write()
-#    for passenger in passengers:
-#        passenger.write()
-#endregion
-
 #region Lines graph
 def buildLinesGraph():
     for x in stations:
@@ -130,14 +89,12 @@ def buildLinesGraph():
         linesGraph.add_edge(
             line.stations[0], line.stations[1], weight=line.length, attr=line.id)
 
-
 def drawLinesGraph():
     # Debug output um Graph zu zeichnen
     nx.draw(linesGraph, with_labels=True)
     plt.show()
 #endregion
 
-#region Route generator
 #region Route calculation
 #calculates shortes path for every passenger and saves [[path],groupSize,targetTime,id] in route
 def calculateRoute():
@@ -280,7 +237,6 @@ def chooseWildcardTrain(train,startStation):
         placedTrains.append(train)
         placedTrains.sort(key=lambda x: x.timeNeeded)
 
-
 def chooseTrain(train,passengers,path,startStation,endStation):
 
     chooseWildcardTrain(train,startStation)
@@ -342,7 +298,6 @@ def moveTrain(train):
         #if train is on line -> move train
         moveTrainOnLine(train)
 
-
 def moveTrainOnLine(train):
     #increase train line progress
     train.progress += 1/(train.line.length/train.speed)
@@ -360,7 +315,6 @@ def moveTrainOnLine(train):
         #remove old passengers
         train.passengers.pop(0)
         train.line = None
-
 
 def moveTrains():
     for train in trains:
@@ -411,21 +365,26 @@ def moveTrains():
 #endregion
 
 #region Utils
+def createDictionaries():
+    #create dictionaries
+    for line in lines:
+        linesDict[line.id] = line
+    for station in stations:
+        stationsDict[station.id] = station
+    for passenger in passengers:
+        passengersDict[passenger.id] = passenger
+
 #gets id string as input
 def getStationById(id):
-    for station in stations:
-        if(station.id == id): return station
+    return stationsDict[id]
 
 #gets id string as input
 def getPassengerById(id):
-    for passenger in passengers:
-        if(passenger.id == id): return passenger
+    return passengersDict[id]
 
 #gets id string as input
 def getLineById(id):
-    for line in lines:
-        if(line.id == id): return line
-
+    return linesDict[id]
 
 def isEmpty(list):
     if(len(list) == 0):
@@ -464,15 +423,13 @@ def printTrainPassengerAssignment():
 #region Main
 if __name__ == "__main__":
     loadInput()
+    createDictionaries()
     buildLinesGraph()
-    # drawLinesGraph()
     initializeCurrentStations()
     calculateRoute()
     sortpathsByLength()
     while(len(paths)>0):
         patternMatching()
-
-    #printTrainPassengerAssignment()
     passengersAvailable = True
     while (passengersAvailable):
         moveTrains()
@@ -483,5 +440,4 @@ if __name__ == "__main__":
                 passengersAvailable = True
                 break
     writeOutput()
-    # getOverallDelay()
 #endregion
