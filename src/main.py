@@ -43,7 +43,6 @@ def loadInput():
             line.addStation(data[2])
             lines.append(line)
         elif inputType==2:
-            print(data)
             curTrain = Train(data[0], data[1], float(
                 data[2]), int(data[3].replace("\\n", "")))
             trains.append(curTrain)
@@ -87,7 +86,6 @@ def getInputType(line, inputType):
 #                 line.addStation(data[2])
 #                 lines.append(line)
 #             elif inputType==2:
-#                 print(data)
 #                 curTrain = Train(data[0], data[1], float(
 #                     data[2]), int(data[3].replace("\\n", "")))
 #                 trains.append(curTrain)
