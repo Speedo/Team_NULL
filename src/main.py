@@ -28,19 +28,22 @@ simulationTime = 1
 #region In/Output
 def loadInput():
     file = sys.stdin.readlines()
+    inputType = ""
     for i in file:
+        inputType = getInputType(i, inputType)
         data = i.split(" ")
-        if data[0][0] == "S":
+        if(len(data)<2): continue
+        if(data[0].find("#")!=-1): continue
+        if inputType==0:
             stations.append(
                 Station(data[0], int(data[1].replace("\\n", ""))))
-        elif data[0][0] == "L":
-            line = Line(data[0], float(data[3]),
-                        int(data[4].replace("\\n", "")))
-            for station in stations:
-                if(station.id == data[1] or station.id == data[2]):
-                    line.addStation(station)
+        elif inputType==1:
+            line = Line(data[0], float(data[3]), int(data[4].replace("\\n", "")))
+            line.addStation(data[1])
+            line.addStation(data[2])
             lines.append(line)
-        elif (data[0][0] == "T"):
+        elif inputType==2:
+            print(data)
             curTrain = Train(data[0], data[1], float(
                 data[2]), int(data[3].replace("\\n", "")))
             trains.append(curTrain)
@@ -48,33 +51,43 @@ def loadInput():
                 wildcardTrains.append(curTrain)
             else:
                 placedTrains.append(curTrain)
-        elif data[0][0] == "P":
-            passenger = Passengers(data[0], int(
-                data[3]), int(data[4].replace("\\n", "")))
-            for station in stations:
-                if station.id == data[1]:
-                    passenger.depatureStation = station
-                elif station.id == data[2]:
-                    passenger.destinationStation = station
+        elif inputType==3:
+            passenger = Passengers(data[0], int(data[3]), int(data[4].replace("\\n", "")))
+            passenger.depatureStation = data[1]
+            passenger.destinationStation = data[2]
             passengers.append(passenger)
+    
+def getInputType(line, inputType):
+    if(line.find("[Stations]")!=-1):
+        return 0
+    if(line.find("[Lines]")!=-1):
+        return 1
+    if(line.find("[Trains]")!=-1):
+        return 2
+    if(line.find("[Passengers]")!=-1):
+        return 3
+    return inputType
 
 #Old Textfile based version
 # def loadInput():
-#     with open('input.txt') as f:
+#     with open('../input.txt') as f:
 #         file = f.readlines()
+#         inputType = ""
 #         for i in file:
+#             inputType = getInputType(i, inputType)
 #             data = i.split(" ")
-#             if data[0][0] == "S":
+#             if(len(data)<2): continue
+#             if(data[0].find("#")!=-1): continue
+#             if inputType==0:
 #                 stations.append(
 #                     Station(data[0], int(data[1].replace("\\n", ""))))
-#             elif data[0][0] == "L":
-#                 line = Line(data[0], float(data[3]),
-#                             int(data[4].replace("\\n", "")))
-#                 for station in stations:
-#                     if(station.id == data[1] or station.id == data[2]):
-#                         line.addStation(station)
+#             elif inputType==1:
+#                 line = Line(data[0], float(data[3]), int(data[4].replace("\\n", "")))
+#                 line.addStation(data[1])
+#                 line.addStation(data[2])
 #                 lines.append(line)
-#             elif (data[0][0] == "T"):
+#             elif inputType==2:
+#                 print(data)
 #                 curTrain = Train(data[0], data[1], float(
 #                     data[2]), int(data[3].replace("\\n", "")))
 #                 trains.append(curTrain)
@@ -82,14 +95,11 @@ def loadInput():
 #                     wildcardTrains.append(curTrain)
 #                 else:
 #                     placedTrains.append(curTrain)
-#             elif data[0][0] == "P":
+#             elif inputType==3:
 #                 passenger = Passengers(data[0], int(
 #                     data[3]), int(data[4].replace("\\n", "")))
-#                 for station in stations:
-#                     if station.id == data[1]:
-#                         passenger.depatureStation = station
-#                     elif station.id == data[2]:
-#                         passenger.destinationStation = station
+#                 passenger.depatureStation = data[1]
+#                 passenger.destinationStation = data[2]
 #                 passengers.append(passenger)
 
 #Outputs final Result to Standard Output as defined in the Requirements
@@ -118,7 +128,7 @@ def buildLinesGraph():
         linesGraph.add_node(x.id)
     for line in lines:
         linesGraph.add_edge(
-            line.stations[0].id, line.stations[1].id, weight=line.length, attr=line.id)
+            line.stations[0], line.stations[1], weight=line.length, attr=line.id)
 
 
 def drawLinesGraph():
@@ -132,7 +142,7 @@ def drawLinesGraph():
 #calculates shortes path for every passenger and saves [[path],groupSize,targetTime,id] in route
 def calculateRoute():
     for passenger in passengers:
-        paths.append([shortest_path(linesGraph, source=passenger.depatureStation.id,target=passenger.destinationStation.id),
+        paths.append([shortest_path(linesGraph, source=passenger.depatureStation,target=passenger.destinationStation),
                 	    passenger])
 
 #sorts paths by length (longest paths first: optimization for patternMatching)
@@ -362,7 +372,7 @@ def moveTrains():
                 hasDetrainedPassengers = False
                 newPassengers = []
                 for passenger in train.boardedPassengers:
-                    if(train.currentStation == passenger.destinationStation):
+                    if(train.currentStation.id == passenger.destinationStation):
                         passenger.addAction(
                             simulationTime, "Detrain")
                         hasDetrainedPassengers = True
@@ -393,7 +403,7 @@ def moveTrains():
             #detrain passengers on final station of train
             newPassengers = []
             for passenger in train.boardedPassengers:
-                if(train.currentStation == passenger.destinationStation):
+                if(train.currentStation.id == passenger.destinationStation):
                     passenger.addAction(simulationTime, "Detrain")
                 else:
                     newPassengers.append(passenger)
@@ -403,15 +413,18 @@ def moveTrains():
 #region Utils
 #gets id string as input
 def getStationById(id):
-    return stations[int(id[1:])-1]
+    for station in stations:
+        if(station.id == id): return station
 
 #gets id string as input
 def getPassengerById(id):
-    return passengers[int(id[1:])-1]
+    for passenger in passengers:
+        if(passenger.id == id): return passenger
 
 #gets id string as input
 def getLineById(id):
-    return lines[int(id[1:])-1]
+    for line in lines:
+        if(line.id == id): return line
 
 
 def isEmpty(list):
