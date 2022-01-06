@@ -275,6 +275,7 @@ def chooseWildcardTrain(train,startStation):
         wildcardTrains.remove(train)
         train.startingPosition = startStation
         train.currentStation = startStation
+        train.addAction(0,"Start",startStation.id)
         placedTrains.append(train)
         placedTrains.sort(key=lambda x: x.timeNeeded)
 
