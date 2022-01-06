@@ -69,6 +69,12 @@ def getInputType(line, inputType):
         return 3
     return inputType
 
+def updateStationCapacity():
+    for train in trains:
+        if(train.currentStation != None):
+            station = train.currentStation
+            station.capacity-=1
+
 #Outputs final Result to Standard Output as defined in the Requirements
 def writeOutput():
     outPutString = ""
@@ -113,7 +119,9 @@ def patternMatching():
     possibleTrains,maxCapacity = getPossiblePlacedTrains(startStation) #add trains which are currently at the start node
     #if no placed train is at the needed station (startNode)
     if(isEmpty(possibleTrains) and not(isEmpty(wildcardTrains))):
-        possibleTrains,maxCapacity = getPossibleWildcardTrains() #add remaining wildcard trains
+            if(startStation.capacity>0):
+                possibleTrains,maxCapacity = getPossibleWildcardTrains() #add remaining wildcard trains
+                startStation.capacity -= 1
     #if no wildcard train remaining
     if(isEmpty(possibleTrains)):
         possibleTrain,maxCapacity = getNearestPossibleTrain(startStation)
@@ -413,6 +421,7 @@ if __name__ == "__main__":
     createDictionaries()
     buildLinesGraph()
     initializeCurrentStations()
+    updateStationCapacity()
     calculateRoute()
     sortpathsByLength()
     while(len(paths)>0):
