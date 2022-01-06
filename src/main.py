@@ -1,16 +1,15 @@
-from numpy import inf
-from classes.line import Line
+from networkx.algorithms.shortest_paths.generic import shortest_path_length
+from networkx.algorithms.shortest_paths import shortest_path
 from classes.passengers import Passengers
 from classes.station import Station
 from classes.train import Train
-import networkx as nx
-import matplotlib.pyplot as plt
-from networkx.algorithms.shortest_paths import shortest_path
-from networkx.algorithms.shortest_paths.generic import shortest_path_length
-import math
-import operator
+from classes.line import Line
 from itertools import repeat
-import sys
+from networkx import Graph
+from operator import add
+from sys import stdin
+from numpy import inf
+from math import ceil
 
 #region Variables
 trains = []
@@ -21,13 +20,16 @@ lines = []
 passengers = []
 paths = []
 currentTime = 0
-linesGraph = nx.Graph()
+linesGraph = Graph()
 simulationTime = 1
+linesDict = {}
+stationsDict = {}
+passengersDict = {}
 #endregion
 
 #region In/Output
 def loadInput():
-    file = sys.stdin.readlines()
+    file = stdin.readlines()
     inputType = ""
     for i in file:
         inputType = getInputType(i, inputType)
@@ -67,39 +69,6 @@ def getInputType(line, inputType):
         return 3
     return inputType
 
-#Old Textfile based version
-# def loadInput():
-#     with open('../input.txt') as f:
-#         file = f.readlines()
-#         inputType = ""
-#         for i in file:
-#             inputType = getInputType(i, inputType)
-#             data = i.split(" ")
-#             if(len(data)<2): continue
-#             if(data[0].find("#")!=-1): continue
-#             if inputType==0:
-#                 stations.append(
-#                     Station(data[0], int(data[1].replace("\\n", ""))))
-#             elif inputType==1:
-#                 line = Line(data[0], float(data[3]), int(data[4].replace("\\n", "")))
-#                 line.addStation(data[1])
-#                 line.addStation(data[2])
-#                 lines.append(line)
-#             elif inputType==2:
-#                 curTrain = Train(data[0], data[1], float(
-#                     data[2]), int(data[3].replace("\\n", "")))
-#                 trains.append(curTrain)
-#                 if (curTrain.startingPosition == "*"):
-#                     wildcardTrains.append(curTrain)
-#                 else:
-#                     placedTrains.append(curTrain)
-#             elif inputType==3:
-#                 passenger = Passengers(data[0], int(
-#                     data[3]), int(data[4].replace("\\n", "")))
-#                 passenger.depatureStation = data[1]
-#                 passenger.destinationStation = data[2]
-#                 passengers.append(passenger)
-
 #Outputs final Result to Standard Output as defined in the Requirements
 def writeOutput():
     outPutString = ""
@@ -110,16 +79,6 @@ def writeOutput():
 
     print(outPutString)
 
-#Old Version for File-based Output
-#def writeOutput():
-#    file = open("output.txt", "w")
-#    file.close()
-#    for train in trains:
-#        train.write()
-#    for passenger in passengers:
-#        passenger.write()
-#endregion
-
 #region Lines graph
 def buildLinesGraph():
     for x in stations:
@@ -127,15 +86,8 @@ def buildLinesGraph():
     for line in lines:
         linesGraph.add_edge(
             line.stations[0], line.stations[1], weight=line.length, attr=line.id)
-
-
-def drawLinesGraph():
-    # Debug output um Graph zu zeichnen
-    nx.draw(linesGraph, with_labels=True)
-    plt.show()
 #endregion
 
-#region Route generator
 #region Route calculation
 #calculates shortes path for every passenger and saves [[path],groupSize,targetTime,id] in route
 def calculateRoute():
@@ -192,7 +144,7 @@ def patternMatching():
             if (i == len(currentPath)):
                 #add passenger to train's passenger array
 
-                potentialCapacity = list(map(operator.add, currentTrainCapacity, tempCapacity))
+                potentialCapacity = list(map(add, currentTrainCapacity, tempCapacity))
                 if(max(potentialCapacity)>maxCapacity):
                     break
 
@@ -245,7 +197,7 @@ def getNearestPossibleTrain(station):
     maxCapacity = 0
     for train in placedTrains:
         distance = shortest_path_length(linesGraph, source=train.currentStation.id, target=station.id, weight="weight")
-        time = train.timeNeeded+math.ceil(distance/train.speed)
+        time = train.timeNeeded+ceil(distance/train.speed)
         if(time < shortestTime):
             shortestTime = time
             nearestTrain = train
@@ -259,7 +211,7 @@ def getNearestPossibleTrain(station):
 def addApproximateTimeNeeded(train, currentTrainStops, startStation, endStation):
     length = shortest_path_length(linesGraph, source=startStation.id, target=endStation.id, weight="weight") #get length of route
     stopCount = sum(currentTrainStops)
-    train.timeNeeded += math.ceil(length / train.speed) + stopCount
+    train.timeNeeded += ceil(length / train.speed) + stopCount
 
 #gets the train with the minimum capacity needed to carry a given number of passengers
 #(train array needs to be sorted ascending by capacity)
@@ -278,7 +230,6 @@ def chooseWildcardTrain(train,startStation):
         train.addAction(0,"Start",startStation.id)
         placedTrains.append(train)
         placedTrains.sort(key=lambda x: x.timeNeeded)
-
 
 def chooseTrain(train,passengers,path,startStation,endStation):
 
@@ -341,7 +292,6 @@ def moveTrain(train):
         #if train is on line -> move train
         moveTrainOnLine(train)
 
-
 def moveTrainOnLine(train):
     #increase train line progress
     train.progress += 1/(train.line.length/train.speed)
@@ -359,7 +309,6 @@ def moveTrainOnLine(train):
         #remove old passengers
         train.passengers.pop(0)
         train.line = None
-
 
 def moveTrains():
     for train in trains:
@@ -410,34 +359,32 @@ def moveTrains():
 #endregion
 
 #region Utils
+def createDictionaries():
+    #create dictionaries
+    for line in lines:
+        linesDict[line.id] = line
+    for station in stations:
+        stationsDict[station.id] = station
+    for passenger in passengers:
+        passengersDict[passenger.id] = passenger
+
 #gets id string as input
 def getStationById(id):
-    for station in stations:
-        if(station.id == id): return station
+    return stationsDict[id]
 
 #gets id string as input
 def getPassengerById(id):
-    for passenger in passengers:
-        if(passenger.id == id): return passenger
+    return passengersDict[id]
 
 #gets id string as input
 def getLineById(id):
-    for line in lines:
-        if(line.id == id): return line
-
+    return linesDict[id]
 
 def isEmpty(list):
     if(len(list) == 0):
         return True
     else:
         return False
-
-def getOverallDelay():
-    delay = 0
-    for passenger in passengers:
-        if(passenger.delay > 0):
-            delay += passenger.delay
-    print("Gesamtverspätung: ", delay)
 
 def initializeCurrentStations():
     for train in placedTrains:
@@ -463,15 +410,13 @@ def printTrainPassengerAssignment():
 #region Main
 if __name__ == "__main__":
     loadInput()
+    createDictionaries()
     buildLinesGraph()
-    # drawLinesGraph()
     initializeCurrentStations()
     calculateRoute()
     sortpathsByLength()
     while(len(paths)>0):
         patternMatching()
-
-    #printTrainPassengerAssignment()
     passengersAvailable = True
     while (passengersAvailable):
         moveTrains()
@@ -482,5 +427,4 @@ if __name__ == "__main__":
                 passengersAvailable = True
                 break
     writeOutput()
-    # getOverallDelay()
 #endregion
