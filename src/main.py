@@ -304,7 +304,7 @@ def moveTrainOnLine(train):
     #increase train line progress
     train.progress += 1/(train.line.length/train.speed)
     #enter station if station reached and station has space
-    if(train.progress >= 1 and getStationById(train.path[0]).capacity > 0): #Bug - Check for Station and not Line Capacity - Ends in infinite loop
+    if(train.progress >= 1 and getStationById(train.path[1]).capacity > 0): #Bug - Check for Station and not Line Capacity - Ends in infinite loop
         #remove station from path
         train.path.pop(0)
         #assign station
