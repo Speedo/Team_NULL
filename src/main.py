@@ -154,7 +154,7 @@ def calculateRoute():
 
 # sorts paths by length (longest paths first: optimization for patternMatching)
 def sortpathsByLength():
-    paths.sort(key=lambda x: (len(x[0]), -x[1].targetTime), reverse=True)
+    paths.sort(key=lambda x: (len(x[0]), -(x[1].targetTime*x[1].groupSize)), reverse=True)
 
 
 # compares first path in paths with every other path of paths to find subpaths (paths that fit into first path)
