@@ -107,10 +107,10 @@ def sortpathsByLength():
 
 #compares first path in paths with every other path of paths to find subpaths (paths that fit into first path)
 def patternMatching():
-    comparingPath = paths[0]
+    tempPaths = paths.copy()
+    comparingPath = tempPaths[0]
     startStation = getStationById(comparingPath[0][0])
     endStation = getStationById(comparingPath[0][len(comparingPath[0])-1])
-    tempPaths = paths.copy()
 
     currentTrainPassengers = [[] for i in repeat(None, len(comparingPath[0]))]
     currentTrainCapacity = [0] * len(comparingPath[0])
@@ -119,9 +119,9 @@ def patternMatching():
     possibleTrains,maxCapacity = getPossiblePlacedTrains(startStation) #add trains which are currently at the start node
     #if no placed train is at the needed station (startNode)
     if(isEmpty(possibleTrains) and not(isEmpty(wildcardTrains))):
-            if(startStation.capacity>0):
-                possibleTrains,maxCapacity = getPossibleWildcardTrains() #add remaining wildcard trains
-                startStation.capacity -= 1
+        if(startStation.capacity>0):
+            possibleTrains,maxCapacity = getPossibleWildcardTrains() #add remaining wildcard trains
+            startStation.capacity -= 1
     #if no wildcard train remaining
     if(isEmpty(possibleTrains)):
         possibleTrain,maxCapacity = getNearestPossibleTrain(startStation)
@@ -262,7 +262,9 @@ def chooseTrain(train,passengers,path,startStation,endStation):
         train.path += path
         train.passengers += passengers
     else:
-        transitionStations = shortest_path(linesGraph, source=train.currentStation.id, target=startStation.id)
+        transitionStations = shortest_path(linesGraph, source=train.endStation.id, target=startStation.id)
+        train.path.pop()
+        train.passengers.pop()
         train.path += transitionStations
         train.passengers += [[]] * len(transitionStations)
         #remove last station from train's path and passengers, because it is equal to the first in the new route and passengerArray
