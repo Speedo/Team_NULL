@@ -352,14 +352,12 @@ def moveTrain(train):
                 moveTrainOnLine(train)
             elif train.idle <= 0 and len(train.passengers) > 1:
                 for compareTrain in trains:
-                    print(len(compareTrain.path))
                     if line.capacity > 1:
                         if len(compareTrain.path) == 1 and compareTrain.currentStation == targetStation and train.currentStation!=None:
                             compareTrain.path.append(train.currentStation.id)
                             compareTrain.passengers.append([])
                             break
                         if len(compareTrain.path) <= 0 and compareTrain.currentStation == targetStation and train.currentStation!=None:
-                            print("Help me my brother!!! Im really STUCK")
                             compareTrain.path.append(compareTrain.currentStation.id)
                             compareTrain.passengers.append([])
                             compareTrain.path.append(train.currentStation.id)
@@ -378,22 +376,6 @@ def moveTrain(train):
                             break
             else:
                 train.idle -= 1
-        elif (not train.finished):
-            print("Move away", train.id)
-            #Move train to unused station
-            for station, capacity in stationUsageDict.items(): 
-                if(capacity==0):
-                    if(getStationById(station).capactiy>0):
-                        #move to station
-                        train.path += shortest_path(linesGraph, source=train.endStation.id, target=station)
-                        train.passengers += [[] for i in repeat(None, len(train.path))]
-                        train.finished = True
-                    else:
-                        #remove station
-                        stationUsageDict.pop(station, None)
-                    return
-
-
     else:
         # if train is on line -> move train
         moveTrainOnLine(train)
