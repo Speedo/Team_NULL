@@ -25,9 +25,10 @@ simulationTime = 1
 linesDict = {}
 stationsDict = {}
 passengersDict = {}
+idletime = 3
 # endregion
 def loadInput():
-    with open("../input.txt") as f:
+    with open("input.txt") as f:
         file = f.readlines()
         inputType = ""
         for i in file:
@@ -38,15 +39,18 @@ def loadInput():
             if data[0].find("#") != -1:
                 continue
             if inputType == 0:
-                stations.append(Station(data[0], int(data[1].replace("\\n", ""))))
+                station = Station(data[0], int(data[1].replace("\\n", "")))
+                stations.append(station)
+                stationsDict[station.id] = station
             elif inputType == 1:
                 line = Line(data[0], float(data[3]), int(data[4].replace("\\n", "")))
                 line.addStation(data[1])
                 line.addStation(data[2])
                 lines.append(line)
+                linesDict[line.id] = line
             elif inputType == 2:
                 curTrain = Train(
-                    data[0], data[1], float(data[2]), int(data[3].replace("\\n", ""))
+                    data[0], data[1], float(data[2]), int(data[3].replace("\\n", "")), idletime
                 )
                 trains.append(curTrain)
                 if curTrain.startingPosition == "*":
@@ -60,6 +64,7 @@ def loadInput():
                 passenger.depatureStation = data[1]
                 passenger.destinationStation = data[2]
                 passengers.append(passenger)
+                passengersDict[passenger.id] = passenger
 
 
 # region In/Output
@@ -373,6 +378,7 @@ def moveTrain(train):
             # check if line has capacity free
             if line.capacity > 0 and targetStation.capacity > 0:
                 # handle capacity
+                train.idle = idletime
                 line.capacity -= 1
                 train.currentStation.capacity += 1
                 targetStation.capacity -= 1
@@ -381,6 +387,50 @@ def moveTrain(train):
                 train.line = line
                 train.addAction(simulationTime, "Depart", train.line.id)
                 moveTrainOnLine(train)
+            elif train.idle <= 0 and len(train.passengers) > 1:
+                for compareTrain in trains:
+                    print(len(compareTrain.path))
+                    if line.capacity > 1:
+                        if len(compareTrain.path) == 1 and compareTrain.currentStation == targetStation and train.currentStation!=None:
+                            compareTrain.path.append(train.currentStation.id)
+                            compareTrain.passengers.append([])
+                            break
+                        if len(compareTrain.path) <= 0 and compareTrain.currentStation == targetStation and train.currentStation!=None:
+                            print("Help me my brother!!! Im really STUCK")
+                            compareTrain.path.append(compareTrain.currentStation.id)
+                            compareTrain.passengers.append([])
+                            compareTrain.path.append(train.currentStation.id)
+                            compareTrain.passengers.append([])
+                            break
+                        if compareTrain.currentStation == targetStation and getStationById(compareTrain.path[1]) == train.currentStation:
+                            train.idle = idletime
+                            line.capacity -= 1
+                            train.currentStation.capacity += 1
+                            targetStation.capacity -= 1
+                            # assign train to line
+                            train.currentStation = None
+                            train.line = line
+                            train.addAction(simulationTime, "Depart", train.line.id)
+                            moveTrainOnLine(train)
+                            break
+            else:
+                train.idle -= 1
+        elif (not train.finished):
+            print("Move away", train.id)
+            #Move train to unused station
+            for station, capacity in stationUsageDict.items(): 
+                if(capacity==0):
+                    if(getStationById(station).capactiy>0):
+                        #move to station
+                        train.path += shortest_path(linesGraph, source=train.endStation.id, target=station)
+                        train.passengers += [[] for i in repeat(None, len(train.path))]
+                        train.finished = True
+                    else:
+                        #remove station
+                        stationUsageDict.pop(station, None)
+                    return
+
+
     else:
         # if train is on line -> move train
         moveTrainOnLine(train)
@@ -456,15 +506,6 @@ def moveTrains():
 # endregion
 
 # region Utils
-def createDictionaries():
-    # create dictionaries
-    for line in lines:
-        linesDict[line.id] = line
-    for station in stations:
-        stationsDict[station.id] = station
-    for passenger in passengers:
-        passengersDict[passenger.id] = passenger
-
 
 # gets id string as input
 def getStationById(id):
@@ -515,7 +556,6 @@ def printTrainPassengerAssignment():
 # region Main
 if __name__ == "__main__":
     loadInput()
-    createDictionaries()
     buildLinesGraph()
     initializeCurrentStations()
     updateStationCapacity()

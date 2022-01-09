@@ -2,7 +2,7 @@ from classes.action import Action
 
 
 class Train:
-    def __init__(self, id, startingPosition, speed, capacity):
+    def __init__(self, id, startingPosition, speed, capacity, idletime):
         self.id = id
         self.startingPosition = startingPosition
         self.currentStation = None
@@ -16,6 +16,8 @@ class Train:
         self.endStation = None
         self.path = []
         self.passengers = []
+        self.idle = idletime
+        self.finished = False
 
     def addAction(self, time, action, target):
         self.actions.append(Action(time, action, target))
