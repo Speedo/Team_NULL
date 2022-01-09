@@ -27,7 +27,7 @@ stationsDict = {}
 passengersDict = {}
 idletime = 3
 # endregion
-region In/Output
+# region In/Output
 def loadInput():
     file = stdin.readlines()
     inputType = ""
