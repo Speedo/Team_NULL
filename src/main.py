@@ -37,13 +37,15 @@ def loadInput():
         if(len(data)<2): continue
         if(data[0].find("#")!=-1): continue
         if inputType==0:
-            stations.append(
-                Station(data[0], int(data[1].replace("\\n", ""))))
+            station = Station(data[0], int(data[1].replace("\\n", "")))
+            stations.append(station)
+            stationsDict[station.id] = station
         elif inputType==1:
             line = Line(data[0], float(data[3]), int(data[4].replace("\\n", "")))
             line.addStation(data[1])
             line.addStation(data[2])
             lines.append(line)
+            linesDict[line.id] = line
         elif inputType==2:
             curTrain = Train(data[0], data[1], float(
                 data[2]), int(data[3].replace("\\n", "")), idletime)
@@ -57,6 +59,7 @@ def loadInput():
             passenger.depatureStation = data[1]
             passenger.destinationStation = data[2]
             passengers.append(passenger)
+            passengersDict[passenger.id] = passenger
 
 
 def getInputType(line, inputType):
