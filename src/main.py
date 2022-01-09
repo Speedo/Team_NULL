@@ -46,7 +46,7 @@ def loadInput():
             lines.append(line)
         elif inputType==2:
             curTrain = Train(data[0], data[1], float(
-                data[2]), int(data[3].replace("\\n", "")))
+                data[2]), int(data[3].replace("\\n", "")), idletime)
             trains.append(curTrain)
             if (curTrain.startingPosition == "*"):
                 wildcardTrains.append(curTrain)
