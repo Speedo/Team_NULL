@@ -47,10 +47,11 @@ def loadInput():
 
             if(len(data) < 2):
                 continue
-
+            
             if(data[0].find("#") != -1):
                 continue
-
+            if(data[0]== ""):
+                continue
             if inputType == 0:
                 station = Station(data[0], int(data[1].replace("\\n", "")))
                 stations.append(station)
@@ -105,7 +106,8 @@ def loadInput():
 
 #         if(data[0].find("#") != -1):
 #             continue
-
+        # if(data[0]== ""):
+        #     continue
 #         if inputType == 0:
 #             station = Station(data[0], int(data[1].replace("\\n", "")))
 #             stations.append(station)
