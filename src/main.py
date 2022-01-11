@@ -56,16 +56,22 @@ def loadInput():
             stationsDict[station.id] = station
 
         elif inputType == 1:
-            line = Line(data[0], float(data[3]), int(
-                        data[4].replace("\\n", "")))
-            line.addStation(data[1])
-            line.addStation(data[2])
+            line = Line(
+                        data[0],
+                        data[1],
+                        data[2],
+                        float(data[3]), 
+                        int(data[4].replace("\\n", "")))
             lines.append(line)
             linesDict[line.id] = line
 
         elif inputType == 2:
-            curTrain = Train(data[0], data[1], float(
-                data[2]), int(data[3].replace("\\n", "")), idletime)
+            curTrain = Train(
+                            data[0], 
+                            data[1], 
+                            float(data[2]),
+                            int(data[3].replace("\\n", "")),
+                            idletime)
             trains.append(curTrain)
 
             if (curTrain.startingPosition == "*"):
@@ -75,10 +81,12 @@ def loadInput():
                 placedTrains.append(curTrain)
 
         elif inputType == 3:
-            passenger = Passengers(data[0], int(data[3]),
-                                   int(data[4].replace("\\n", "")))
-            passenger.depatureStation = data[1]
-            passenger.destinationStation = data[2]
+            passenger = Passengers(
+                            data[0], 
+                            data[1], 
+                            data[2], 
+                            int(data[3]),
+                            int(data[4].replace("\\n", "")))
             passengers.append(passenger)
             passengersDict[passenger.id] = passenger
 
