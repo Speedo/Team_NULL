@@ -805,7 +805,7 @@ if __name__ == "__main__":
 
     testIndex=0
     passengersAvailable = True
-    while passengersAvailable and testIndex<40:
+    while passengersAvailable:
         moveTrains()
         simulationTime += 1
         passengersAvailable = False
