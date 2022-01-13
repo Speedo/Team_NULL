@@ -40,120 +40,120 @@ currentStation = None
 
 
 # region In/Output
-if(os.environ.get("USERNAME") != "speedo"):
-    def loadInput():
-        with open('input.txt') as f:
+# if(os.environ.get("USERNAME") != "speedo"):
+# def loadInput():
+#     with open('input.txt') as f:
 
-            file = f.readlines()
-            inputType = ""
+#         file = f.readlines()
+#         inputType = ""
 
-            for i in file:
-                inputType = getInputType(i, inputType)
-                data = i.split(" ")
+#         for i in file:
+#             inputType = getInputType(i, inputType)
+#             data = i.split(" ")
 
-                if(len(data) < 2):
-                    continue
-                
-                if(data[0].find("#") != -1):
-                    continue
-                if(data[0]== ""):
-                    continue
-                if inputType == 0:
-                    station = Station(data[0], int(data[1].replace("\\n", "")))
-                    stations.append(station)
-                    stationsDict[station.id] = station
+#             if(len(data) < 2):
+#                 continue
+            
+#             if(data[0].find("#") != -1):
+#                 continue
+#             if(data[0]== ""):
+#                 continue
+#             if inputType == 0:
+#                 station = Station(data[0], int(data[1].replace("\\n", "")))
+#                 stations.append(station)
+#                 stationsDict[station.id] = station
 
-                elif inputType == 1:
-                    line = Line(
-                                data[0],
-                                data[1],
-                                data[2],
-                                float(data[3]), 
-                                int(data[4].replace("\\n", "")))
-                    lines.append(line)
-                    linesDict[line.id] = line
+#             elif inputType == 1:
+#                 line = Line(
+#                             data[0],
+#                             data[1],
+#                             data[2],
+#                             float(data[3]), 
+#                             int(data[4].replace("\\n", "")))
+#                 lines.append(line)
+#                 linesDict[line.id] = line
 
-                elif inputType == 2:
-                    curTrain = Train(
-                                    data[0], 
-                                    data[1], 
-                                    float(data[2]),
-                                    int(data[3].replace("\\n", "")),
-                                    idletime)
-                    trains.append(curTrain)
-                    trainsDict[curTrain.id] = curTrain
+#             elif inputType == 2:
+#                 curTrain = Train(
+#                                 data[0], 
+#                                 data[1], 
+#                                 float(data[2]),
+#                                 int(data[3].replace("\\n", "")),
+#                                 idletime)
+#                 trains.append(curTrain)
+#                 trainsDict[curTrain.id] = curTrain
 
-                    if (curTrain.startingPosition == "*"):
-                        wildcardTrains.append(curTrain)
+#                 if (curTrain.startingPosition == "*"):
+#                     wildcardTrains.append(curTrain)
 
-                    else:
-                        placedTrains.append(curTrain)
+#                 else:
+#                     placedTrains.append(curTrain)
 
-                elif inputType == 3:
-                    passenger = Passengers(
-                                    data[0], 
-                                    data[1], 
-                                    data[2], 
-                                    int(data[3]),
-                                    int(data[4].replace("\\n", "")))
-                    passengers.append(passenger)
-                    passengersDict[passenger.id] = passenger
-else: 
-    def loadInput():
+#             elif inputType == 3:
+#                 passenger = Passengers(
+#                                 data[0], 
+#                                 data[1], 
+#                                 data[2], 
+#                                 int(data[3]),
+#                                 int(data[4].replace("\\n", "")))
+#                 passengers.append(passenger)
+#                 passengersDict[passenger.id] = passenger
 
-        file = stdin.readlines()
-        inputType = ""
+def loadInput():
 
-        for i in file:
-            inputType = getInputType(i, inputType)
-            data = i.split(" ")
+    file = stdin.readlines()
+    inputType = ""
 
-            if(len(data) < 2):
-                continue
+    for i in file:
+        inputType = getInputType(i, inputType)
+        data = i.split(" ")
 
-            if(data[0].find("#") != -1):
-                continue
-            if(data[0]== ""):
-                continue
-            if inputType == 0:
-                station = Station(data[0], int(data[1].replace("\\n", "")))
-                stations.append(station)
-                stationsDict[station.id] = station
+        if(len(data) < 2):
+            continue
 
-            elif inputType == 1:
-                line = Line(
-                            data[0],
-                            data[1],
-                            data[2],
-                            float(data[3]), 
+        if(data[0].find("#") != -1):
+            continue
+        if(data[0]== ""):
+            continue
+        if inputType == 0:
+            station = Station(data[0], int(data[1].replace("\\n", "")))
+            stations.append(station)
+            stationsDict[station.id] = station
+
+        elif inputType == 1:
+            line = Line(
+                        data[0],
+                        data[1],
+                        data[2],
+                        float(data[3]), 
+                        int(data[4].replace("\\n", "")))
+            lines.append(line)
+            linesDict[line.id] = line
+
+        elif inputType == 2:
+            curTrain = Train(
+                            data[0], 
+                            data[1], 
+                            float(data[2]),
+                            int(data[3].replace("\\n", "")),
+                            idletime)
+            trains.append(curTrain)
+
+            if (curTrain.startingPosition == "*"):
+                wildcardTrains.append(curTrain)
+
+            else:
+                placedTrains.append(curTrain)
+
+        elif inputType == 3:
+            passenger = Passengers(
+                            data[0], 
+                            data[1], 
+                            data[2], 
+                            int(data[3]),
                             int(data[4].replace("\\n", "")))
-                lines.append(line)
-                linesDict[line.id] = line
-
-            elif inputType == 2:
-                curTrain = Train(
-                                data[0], 
-                                data[1], 
-                                float(data[2]),
-                                int(data[3].replace("\\n", "")),
-                                idletime)
-                trains.append(curTrain)
-
-                if (curTrain.startingPosition == "*"):
-                    wildcardTrains.append(curTrain)
-
-                else:
-                    placedTrains.append(curTrain)
-
-            elif inputType == 3:
-                passenger = Passengers(
-                                data[0], 
-                                data[1], 
-                                data[2], 
-                                int(data[3]),
-                                int(data[4].replace("\\n", "")))
-                passengers.append(passenger)
-                passengersDict[passenger.id] = passenger
+            passengers.append(passenger)
+            passengersDict[passenger.id] = passenger
 
 
 def getInputType(line, inputType):
