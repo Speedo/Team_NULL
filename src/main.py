@@ -600,82 +600,76 @@ def moveTrains():
 
     
 
-    # for station in stations:
-    #     if station.potentialCapacity < 0 and len(station.depart) == 0:
-    #         print("Extra Case FOUND!!!!!!")
-    #         for train in station.enter:
-    #             print(train.id)
-    #             if len(station.finishedTrains) <= 0:
-    #                 print("Breaking")
-    #                 break
-    #             else:
-    #                 lineId = linesGraph.get_edge_data(
-    #                     train.currentStation.id,
-    #                     station.id)["attr"]
-    #                 line = getLineById(lineId)
-    #                 if line.capacity > 0:
-    #                     swapTrain = station.finishedTrains.pop()
-    #                     swapTrain.path.append(station.id)
-    #                     swapTrain.path.append(train.currentStation.id)
-    #                     swapTrain.passengers += [[],[]]
-    #                     swapTrain.finished = False
-    #                 elif line.capacity == 0:
-    #                     checkableStations = [station]
-    #                     i=0
-    #                     alternativeStation = None
-    #                     while len(checkableStations) > i :
-    #                         print(i)
-    #                         for lineTupel in linesGraph.edges(checkableStations[i].id):
-    #                             if getStationById(checkableStations[i].id).previousStation == lineTupel[1]:
-    #                                 continue
-    #                             if len(getStationById(lineTupel[0]).finishedTrains) > 0:
-    #                                 print("Enough Trains: ",lineTupel[0])
-    #                                 lineId = linesGraph.get_edge_data(
-    #                                     lineTupel[0],
-    #                                     lineTupel[1])["attr"]
-    #                                 line = getLineById(lineId)
-    #                                 if line.capacity > 0:
-    #                                     print("Enough Line Capacity")
-    #                                     lineStation = getStationById(lineTupel[1])
-    #                                     lineStation.previousStation = lineTupel[0]
-    #                                     print(lineStation.id,": ",lineStation.potentialCapacity)
-    #                                     if lineStation.potentialCapacity > 0:
-    #                                         alternativeStation = lineStation
-    #                                         break
-    #                                     else:
-    #                                         checkableStations.append(lineStation)
-    #                                         print(checkableStations)
-    #                             else:
-    #                                 break
-    #                         if alternativeStation!=None:
-    #                             break
-    #                         i+=1
-    #                     if alternativeStation!=None:
-    #                         previousStation = ""
-    #                         pushStation = getStationById(alternativeStation.previousStation)
-    #                         while previousStation != station.id:
-    #                             pushTrain = pushStation.finishedTrains.pop()
-    #                             pushTrain.currentStation = pushTrain
-    #                             pushTrain.path.append(pushStation.id)
-    #                             pushTrain.path.append(alternativeStation.id)
-    #                             pushTrain.passengers += [[],[]]
-    #                             pushTrain.finished = False
-    #                             alternativeStation.enter.append(pushTrain)
-    #                             alternativeStation.potentialCapacity -= 1
-    #                             pushStation.depart.append(pushTrain)
-    #                             pushStation.potentialCapacity += 1
-    #                             previousStation = pushStation.id
-    #                             alternativeStation = pushStation
-    #                             if alternativeStation.previousStation!="":
-    #                                 pushStation = getStationById(alternativeStation.previousStation)
-    #                     # else:
-    #                     #     finishedTrain = station.finishedTrains.pop()
-    #                     #     finishedTrain.path.append(station.id)
-    #                     #     finishedTrain.path.append(train.currentStation.id)
-    #                     #     train.path.pop(0)
-    #                     #     train.path.pop(0)
-    #                     #     train.finished = True
-    #                     #     print("swapRoutines")
+    for station in stations:
+        if station.potentialCapacity < 0 and len(station.depart) == 0:
+            for train in station.enter:
+                if len(station.finishedTrains) <= 0:
+                    break
+                else:
+                    lineId = linesGraph.get_edge_data(
+                        train.currentStation.id,
+                        station.id)["attr"]
+                    line = getLineById(lineId)
+                    if line.capacity > 0:
+                        swapTrain = station.finishedTrains.pop()
+                        swapTrain.currentStation.depart.append(swapTrain)
+                        swapTrain.currentStation.potentialCapacity += 1
+                        train.currentStation.enter.append(swapTrain)
+                        train.currentStation.potentialCapacity -= 1
+                        swapTrain.path.append(station.id)
+                        swapTrain.path.append(train.currentStation.id)
+                        swapTrain.passengers += [[],[]]
+                        swapTrain.finished = False
+                        swapTrain.nextStation =  train.currentStation
+                        swapTrain.enter =  train.currentStation.id
+                        swapTrain.potentialLine = line
+                        line.capacity -= 1
+                    elif line.capacity == 0:
+                        checkableStations = [station]
+                        i=0
+                        alternativeStation = None
+                        while len(checkableStations) > i :
+                            for lineTupel in linesGraph.edges(checkableStations[i].id):
+                                if getStationById(checkableStations[i].id).previousStation == lineTupel[1]:
+                                    continue
+                                if len(getStationById(lineTupel[0]).finishedTrains) > 0:
+                                    lineId = linesGraph.get_edge_data(
+                                        lineTupel[0],
+                                        lineTupel[1])["attr"]
+                                    line = getLineById(lineId)
+                                    if line.capacity > 0:
+                                        lineStation = getStationById(lineTupel[1])
+                                        lineStation.previousStation = lineTupel[0]
+                                        if lineStation.potentialCapacity > 0:
+                                            alternativeStation = lineStation
+                                            break
+                                        else:
+                                            checkableStations.append(lineStation)
+                                else:
+                                    break
+                            if alternativeStation!=None:
+                                break
+                            i+=1
+                        if alternativeStation!=None:
+                            previousStation = ""
+                            pushStation = getStationById(alternativeStation.previousStation)
+                            while previousStation != station.id:
+                                pushTrain = pushStation.finishedTrains.pop()
+                                pushTrain.path.append(pushStation.id)
+                                pushTrain.path.append(alternativeStation.id)
+                                pushTrain.nextStation = alternativeStation
+                                pushTrain.enter = alternativeStation.id
+                                pushTrain.potentialLine = getLineById(linesGraph.get_edge_data(pushStation.id,alternativeStation.id)["attr"])
+                                pushTrain.passengers += [[],[]]
+                                pushTrain.finished = False
+                                alternativeStation.enter.append(pushTrain)
+                                alternativeStation.potentialCapacity -= 1
+                                pushStation.depart.append(pushTrain)
+                                pushStation.potentialCapacity += 1
+                                previousStation = pushStation.id
+                                alternativeStation = pushStation
+                                if alternativeStation.previousStation!="":
+                                    pushStation = getStationById(alternativeStation.previousStation)
 
 
     for station in stations:
