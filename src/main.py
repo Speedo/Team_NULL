@@ -511,7 +511,9 @@ def moveTrains():
         # check if train has path
         if len(train.path) > 1:
             # check if train is in target station
+            # print(1, train.id)
             if (train.currentStation != None and train.currentStation.id == train.path[0]):
+                # print(2, train.id)
                 # detrain passengers
                 hasDetrainedPassengers = False
                 newPassengers = []
@@ -539,17 +541,21 @@ def moveTrains():
                         train.passengers[0] = []
                     elif not hasDetrainedPassengers:
                         # else move train to next station
+                        # print(3, train.id)
                         moveTrain(train)
 
                 else:
                     # else move train to next station
+                    # print(4, train.id)
                     moveTrain(train)
 
             else:
                 # else move forward train to target station
+                # print(5, train.id)
                 moveTrain(train)
 
         else:
+            # print(6, train.id)
             # detrain passengers on final station of train
             newPassengers = []
             foundPassenger = False
@@ -566,12 +572,26 @@ def moveTrains():
                 train.passengers = []
                 train.currentStation.finishedTrains.append(train)
 
-    
+    # print("Before everything")
+    # for station in stations:
+    #     entered = ""
+    #     departed = ""
+    #     for train in station.enter:
+    #         entered += train.id + ", "
+    #     for train in station.depart:
+    #         departed += train.id + ", "
+    #     if entered == "":
+    #         entered = "--"
+    #     if departed == "":
+    #         departed = "--"
+    #     print(station.id,": ",entered,"; ",departed,"; ",station.potentialCapacity)
 
     for station in stations:
         if station.potentialCapacity < 0 and len(station.depart) == 0:
+            # print(train.id,"reached Edge Case")
             for train in station.enter:
                 if len(station.finishedTrains) <= 0:
+                    # print("Train not finished")
                     break
                 else:
                     lineId = linesGraph.get_edge_data(
@@ -591,9 +611,12 @@ def moveTrains():
                         swapTrain.nextStation =  train.currentStation
                         swapTrain.enter =  train.currentStation.id
                         swapTrain.potentialLine = line
+                        swapTrain.edgeCase = True
                         line.capacity -= 1
+
                     elif line.capacity == 0:
                         checkableStations = [station]
+                        # print(train.id,"reached Pushing")
                         i=0
                         alternativeStation = None
                         while len(checkableStations) > i :
@@ -627,7 +650,8 @@ def moveTrains():
                                 pushTrain.path.append(pushStation.id)
                                 pushTrain.nextStation = alternativeStation
                                 pushTrain.enter = alternativeStation.id
-                                pushTrain.potentialLine = getLineById(linesGraph.get_edge_data(pushStation.id,alternativeStation.id)["attr"])
+                                pushLine = getLineById(linesGraph.get_edge_data(pushStation.id,alternativeStation.id)["attr"])
+                                pushTrain.potentialLine = pushLine
                                 pushTrain.passengers += [[],[]]
                                 pushTrain.finished = False
                                 alternativeStation.enter.append(pushTrain)
@@ -636,6 +660,8 @@ def moveTrains():
                                 pushStation.potentialCapacity += 1
                                 previousStation = pushStation.id
                                 alternativeStation = pushStation
+                                pushTrain.edgeCase = True
+                                pushLine.capacity -= 1
                                 if alternativeStation.previousStation!="":
                                     pushStation = getStationById(alternativeStation.previousStation)
 
@@ -644,7 +670,7 @@ def moveTrains():
     # for station in stations:
     #     print(station.id,":",station.potentialCapacity)
 
-    print("Simulation Step: ",simulationTime)
+    # print("Simulation Step: ",simulationTime)
 
     for station in stations:
         if station.potentialCapacity < 0:
@@ -652,18 +678,18 @@ def moveTrains():
             i = 0
             checkableTrains += station.enter
             while len(checkableTrains)>i:
-                for station in stations:
-                    entered = ""
-                    departed = ""
-                    for train in station.enter:
-                        entered += train.id + ", "
-                    for train in station.depart:
-                        departed += train.id + ", "
-                    if entered == "":
-                        entered = "--"
-                    if departed == "":
-                        departed = "--"
-                    print(station.id,": ",entered,"; ",departed,"; ",station.potentialCapacity)
+                # for station in stations:
+                #     entered = ""
+                #     departed = ""
+                #     for train in station.enter:
+                #         entered += train.id + ", "
+                #     for train in station.depart:
+                #         departed += train.id + ", "
+                #     if entered == "":
+                #         entered = "--"
+                #     if departed == "":
+                #         departed = "--"
+                #     print(station.id,": ",entered,"; ",departed,"; ",station.potentialCapacity)
                 curTrain = checkableTrains[i]
                 curStation = curTrain.currentStation
                 if curStation.potentialCapacity > 0:
@@ -674,6 +700,7 @@ def moveTrains():
                     curStation.depart.remove(curTrain)
                     enterStation.enter.remove(curTrain)
                     curTrain.enter = ""
+                    curTrain.potentialLine.capacity += 1
                     
                     if station.potentialCapacity >= 0:
                         break
@@ -689,19 +716,19 @@ def moveTrains():
     # for station in stations:
     #     print(station.id,":",station.potentialCapacity)
 
-    print("FinalOutput: ",simulationTime)
-    for station in stations:
-        entered = ""
-        departed = ""
-        for train in station.enter:
-            entered += train.id + ", "
-        for train in station.depart:
-            departed += train.id + ", "
-        if entered == "":
-            entered = "--"
-        if departed == "":
-            departed = "--"
-        print(station.id,": ",entered,"; ",departed,"; ",station.potentialCapacity)
+    # print("FinalOutput: ",simulationTime)
+    # for station in stations:
+    #     entered = ""
+    #     departed = ""
+    #     for train in station.enter:
+    #         entered += train.id + ", "
+    #     for train in station.depart:
+    #         departed += train.id + ", "
+    #     if entered == "":
+    #         entered = "--"
+    #     if departed == "":
+    #         departed = "--"
+    #     print(station.id,": ",entered,"; ",departed,"; ",station.potentialCapacity)
 
     # print("Trains")
     for train in placedTrains:
@@ -803,9 +830,15 @@ if __name__ == "__main__":
 
     printTrainPassengerAssignment()
 
-    testIndex=0
     passengersAvailable = True
     while passengersAvailable:
+        # for train in placedTrains:
+        #     if train.currentStation!=None:
+        #         print("Current Station:",train.id,":",train.currentStation.id)
+        #     else:
+        #         print("Current Line:",train.id,":",train.line.id)
+        #     if len(train.path)>0:
+        #         print("CurrentPath ",train.id,":",train.path)
         moveTrains()
         simulationTime += 1
         passengersAvailable = False
@@ -823,6 +856,5 @@ if __name__ == "__main__":
             if not passenger.finished:
                 passengersAvailable = True
                 break
-        testIndex+=1
     writeOutput()
 # endregion

@@ -21,7 +21,7 @@ class Train:
         self.finished = False
         self.enter = ""
         self.potentialLine = None
-        self.added = False
+        self.edgeCase = False
 
     def addAction(self, time, action, target):
         self.actions.append(Action(time, action, target))
