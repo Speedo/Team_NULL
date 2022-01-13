@@ -644,12 +644,26 @@ def moveTrains():
     # for station in stations:
     #     print(station.id,":",station.potentialCapacity)
 
+    print("Simulation Step: ",simulationTime)
+
     for station in stations:
         if station.potentialCapacity < 0:
             checkableTrains = []
             i = 0
             checkableTrains += station.enter
             while len(checkableTrains)>i:
+                for station in stations:
+                    entered = ""
+                    departed = ""
+                    for train in station.enter:
+                        entered += train.id + ", "
+                    for train in station.depart:
+                        departed += train.id + ", "
+                    if entered == "":
+                        entered = "--"
+                    if departed == "":
+                        departed = "--"
+                    print(station.id,": ",entered,"; ",departed,"; ",station.potentialCapacity)
                 curTrain = checkableTrains[i]
                 curStation = curTrain.currentStation
                 if curStation.potentialCapacity > 0:
@@ -675,19 +689,19 @@ def moveTrains():
     # for station in stations:
     #     print(station.id,":",station.potentialCapacity)
 
-    # print("Simulation Step: ",simulationTime)
-    # for station in stations:
-    #     entered = ""
-    #     departed = ""
-    #     for train in station.enter:
-    #         entered += train.id + ", "
-    #     for train in station.depart:
-    #         departed += train.id + ", "
-    #     if entered == "":
-    #         entered = "--"
-    #     if departed == "":
-    #         departed = "--"
-    #     print(station.id,": ",entered,"; ",departed,"; ",station.potentialCapacity)
+    print("FinalOutput: ",simulationTime)
+    for station in stations:
+        entered = ""
+        departed = ""
+        for train in station.enter:
+            entered += train.id + ", "
+        for train in station.depart:
+            departed += train.id + ", "
+        if entered == "":
+            entered = "--"
+        if departed == "":
+            departed = "--"
+        print(station.id,": ",entered,"; ",departed,"; ",station.potentialCapacity)
 
     # print("Trains")
     for train in placedTrains:
@@ -787,10 +801,11 @@ if __name__ == "__main__":
         patternMatching()
     initializeEmptyTrains()
 
-    # printTrainPassengerAssignment()
+    printTrainPassengerAssignment()
 
+    testIndex=0
     passengersAvailable = True
-    while passengersAvailable:
+    while passengersAvailable and testIndex<40:
         moveTrains()
         simulationTime += 1
         passengersAvailable = False
@@ -808,5 +823,6 @@ if __name__ == "__main__":
             if not passenger.finished:
                 passengersAvailable = True
                 break
+        testIndex+=1
     writeOutput()
 # endregion
