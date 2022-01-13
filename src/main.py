@@ -587,16 +587,17 @@ def moveTrains():
         else:
             # detrain passengers on final station of train
             newPassengers = []
+            foundPassenger = False
             for passenger in train.boardedPassengers:
                 if train.currentStation.id == passenger.destinationStation:
                     passenger.addAction(simulationTime, "Detrain")
-
+                    foundPassenger = True
                 else:
                     newPassengers.append(passenger)
-
             train.boardedPassengers = newPassengers
-            train.finished = True
-            train.currentStation.finishedTrains.append(train)
+            if(not foundPassenger):
+                train.finished = True
+                train.currentStation.finishedTrains.append(train)
 
     
 
@@ -815,7 +816,7 @@ if __name__ == "__main__":
     while len(paths) > 0:
         patternMatching()
 
-    # printTrainPassengerAssignment()
+    printTrainPassengerAssignment()
 
     for train in placedTrains:
         if len(train.path)<=0:
