@@ -1,17 +1,41 @@
-# Bahnhöfe: str(ID)
+#validation 13 failed:
+#validation failed for station 'S5': station (S5): too many trains (capacity: 2, current: 3)
+
 [Stations]
-S1 1
-S2 1
+S1 2
+S2 2
+S3 6
+S4 5
+S5 2
+S6 7
+S7 8
+S8 7
 
-# Strecken: str(ID) str(Anfang) str(Ende) dec(Länge) int(Kapazität)
 [Lines]
-L1 S1 S2 4 2
+L1 S1 S2 3 2
+L2 S5 S6 5 1
+L3 S1 S5 4 1
+L4 S2 S3 9 1
+L5 S6 S7 3 2
+L6 S2 S6 1 2
+L7 S3 S4 7 3
+L8 S7 S8 6 1
+L9 S3 S7 6 3
+L10 S4 S8 5 1
+L11 S1 S4 10 4
+L12 S5 S8 3 2
 
-# Züge: str(ID) str(Startbahnhof)/* dec(Geschwindigkeit) int(Kapazität)
 [Trains]
-T1 S1 2 50
-T2 S2 2 50
+T1 S1 5 20
+T2 S6 1 23
+T3 S2 1 21
+T4 S7 5 24
+T5 S2 3 20
 
-# Passagiere: str(ID) str(Startbahnhof) str(Zielbahnhof) int(Gruppengröße) int(Ankunftszeit)
 [Passengers]
-P1 S1 S2 50 4
+P1 S8 S3 8 23
+P2 S1 S5 18 20
+P3 S3 S5 13 10
+P4 S6 S5 5 7
+P5 S3 S6 13 6
+P6 S1 S3 16 22

@@ -678,17 +678,6 @@ def moveTrains():
             i = 0
             checkableTrains += station.enter
             while len(checkableTrains)>i:
-                for station in stations:
-                    entered = ""
-                    departed = ""
-                    for train in station.enter:
-                        entered += train.id + ", "
-                    for train in station.depart:
-                        departed += train.id + ", "
-                    if entered == "":
-                        entered = "--"
-                    if departed == "":
-                        departed = "--"
                 curTrain = checkableTrains[i]
                 curStation = curTrain.currentStation
                 if curStation.potentialCapacity > 0:
@@ -727,8 +716,8 @@ def moveTrains():
         if train.line is None and not train.finished:
             # if train is not on line and has path
             if train.enter != "":
-                train.currentStation.capacity += 1
-                getStationById(train.path[1]).capacity -= 1
+                # train.currentStation.capacity += 1
+                # getStationById(train.path[1]).capacity -= 1
                 # assign train to line
                 train.currentStation.depart.remove(train)
                 train.nextStation.enter.remove(train)
@@ -826,6 +815,8 @@ if __name__ == "__main__":
     while len(paths) > 0:
         patternMatching()
 
+    # printTrainPassengerAssignment()
+
     for train in placedTrains:
         if len(train.path)<=0:
             train.finished=True
@@ -845,6 +836,10 @@ if __name__ == "__main__":
         moveTrains()
         simulationTime += 1
         passengersAvailable = False
+        
+        # print("--- ",simulationTime," ---")
+        # for station in stations:
+        #     print(station.id,":",station.capacity)
         for passenger in passengers:
             if not passenger.finished:
                 passengersAvailable = True
