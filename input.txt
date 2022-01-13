@@ -1,39 +1,49 @@
+#validation 8 failed:
+#validation failed for station 'S2': station (S2): too many trains (capacity: 1, current: 2)
+
+
+[Train:T1]
+2 Depart L3 S4->S1(2)
+4 Depart L1 S1->S2(5)
+7 Depart L4 S2->S3(8)
+8 Depart L4 S3->S2(9)
+
+[Train:T2]
+2 Depart L7 S6->S3(7)
+7 Depart L4 S3->S2(9)
+
+
 [Stations]
-S1 6
-S2 3
-S3 5
-S4 7
-S5 2
-S6 4
-S7 3
-S8 4
+S1 4
+S2 1
+S3 8
+S4 2
+S5 3
+S6 6
 
 [Lines]
-L1 S1 S2 10 2
-L2 S5 S6 5 1
-L3 S1 S5 3 2
-L4 S2 S3 2 2
-L5 S6 S7 7 4
-L6 S2 S6 2 1
-L7 S3 S4 2 4
-L8 S7 S8 6 4
-L9 S3 S7 1 4
-L10 S4 S8 4 3
-L11 S1 S4 3 1
-L12 S5 S8 3 4
+L1 S1 S2 2 3
+L2 S4 S5 4 4
+L3 S1 S4 2 3
+L4 S2 S3 3 4
+L5 S5 S6 6 1
+L6 S2 S5 1 4
+L7 S3 S6 10 2
+L8 S1 S3 6 3
+L9 S4 S6 5 2
 
 [Trains]
-T1 S8 3 23
-T2 S1 4 26
-T3 S6 3 29
-T4 S3 4 28
-T5 S5 4 22
+T1 S4 3 29
+T2 S6 2 23
+T3 S3 5 27
+T4 * 1 25
+T5 S4 4 20
 
 [Passengers]
-P1 S4 S5 9 11
-P2 S3 S4 17 19
-P3 S1 S5 14 10
-P4 S6 S1 11 11
-P5 S4 S1 19 10
-P6 S2 S4 13 6
-P7 S6 S3 9 7
+P1 S6 S2 13 16
+P2 S4 S1 14 19
+P3 S5 S2 17 14
+P4 S6 S3 11 9
+P5 S5 S1 6 17
+P6 S4 S2 9 13
+P7 S3 S6 19 6
