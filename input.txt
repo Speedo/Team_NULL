@@ -1,49 +1,35 @@
-#validation 8 failed:
-#validation failed for station 'S2': station (S2): too many trains (capacity: 1, current: 2)
-
-
-[Train:T1]
-2 Depart L3 S4->S1(2)
-4 Depart L1 S1->S2(5)
-7 Depart L4 S2->S3(8)
-8 Depart L4 S3->S2(9)
-
-[Train:T2]
-2 Depart L7 S6->S3(7)
-7 Depart L4 S3->S2(9)
-
-
+#Error: AttributeError: 'NoneType' object has no attribute 'depart'
+#::::::::::::::::::::
+#:::::::::Input::::::
+#::::::::::::::::::::
 [Stations]
-S1 4
-S2 1
-S3 8
-S4 2
-S5 3
-S6 6
+S1 6
+S2 8
+S3 1
+S4 1
+S5 6
+S6 3
 
 [Lines]
-L1 S1 S2 2 3
-L2 S4 S5 4 4
-L3 S1 S4 2 3
-L4 S2 S3 3 4
-L5 S5 S6 6 1
-L6 S2 S5 1 4
-L7 S3 S6 10 2
-L8 S1 S3 6 3
-L9 S4 S6 5 2
+L1 S1 S2 9 4
+L2 S4 S5 2 4
+L3 S1 S4 6 3
+L4 S2 S3 10 3
+L5 S5 S6 7 3
+L6 S2 S5 1 1
+L7 S3 S6 2 3
+L8 S1 S3 5 4
+L9 S4 S6 8 4
 
 [Trains]
 T1 S4 3 29
-T2 S6 2 23
-T3 S3 5 27
-T4 * 1 25
-T5 S4 4 20
+T2 S2 3 28
+T3 S1 1 29
+T4 S3 1 26
 
 [Passengers]
-P1 S6 S2 13 16
-P2 S4 S1 14 19
-P3 S5 S2 17 14
-P4 S6 S3 11 9
-P5 S5 S1 6 17
-P6 S4 S2 9 13
-P7 S3 S6 19 6
+P1 S1 S6 18 18
+P2 S5 S6 10 17
+P3 S2 S4 10 20
+P4 S1 S6 17 4
+P5 S6 S4 19 8
