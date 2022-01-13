@@ -7,3 +7,7 @@ class Station:
         self.potentialCapacity = capacity
         self.finishedTrains = []
         self.previousStation = ""
+    
+    def placeTrain(self):
+        self.capacity -= 1
+        self.potentialCapacity -= 1
