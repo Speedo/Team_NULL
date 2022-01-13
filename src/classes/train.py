@@ -6,6 +6,7 @@ class Train:
         self.id = id
         self.startingPosition = startingPosition
         self.currentStation = None
+        self.nextStation = None
         self.boardedPassengers = []
         self.speed = speed
         self.capacity = capacity
@@ -18,6 +19,9 @@ class Train:
         self.passengers = []
         self.idle = idletime
         self.finished = False
+        self.enter = ""
+        self.potentialLine = None
+        self.added = False
 
     def addAction(self, time, action, target):
         self.actions.append(Action(time, action, target))
