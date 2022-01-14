@@ -143,6 +143,7 @@ class Train:
         self.currentStation.removeTrainFromDepartSchedule(self)
         self.nextStation.removeTrainFromEnterSchedule(self)
         self.line = self.potentialLine
+        self.nextStation.capacity -= 1
         self.currentStation = None
         self.nextStation = None
         self.potentialLine = None

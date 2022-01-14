@@ -612,9 +612,7 @@ def scheduleTrainMovement():
                         # board passengers
                         for passenger in train.passengers[0]:
                             passengerObj = getPassengerById(passenger)
-                            passengerObj.addAction(simulationTime,
-                                                   "Board",
-                                                   train.id)
+                            passengerObj.addAction(simulationTime,"Board",train.id)
                             train.boardedPassengers.append(passengerObj)
 
                         train.passengers[0] = []
@@ -641,12 +639,16 @@ def scheduleTrainMovement():
                 else:
                     newPassengers.append(passenger)
             train.boardedPassengers = newPassengers
+
             if not foundPassenger and train.currentStation != None and not train.isFinished:
                 train.setFinished()
 
     addFinishedTrainsToSchedule()
     removeTrainsFromSchedule()
     moveTrains()
+
+    for station in stations:
+        station.potentialCapacity = station.capacity
 # endregion
 
 
@@ -730,10 +732,18 @@ if __name__ == "__main__":
         patternMatching()
     initializeEmptyTrains()
 
-    # printTrainPassengerAssignment()
+    printTrainPassengerAssignment()
 
     passengersAvailable = True
     while passengersAvailable:
+        print("--- Simulation Step ---")
+        for station in stations:
+            trains = ""
+            for train in placedTrains:
+                if train.currentStation != None and train.currentStation.id == station.id:
+                    trains += train.id + ", "
+            if trains != "":
+                print(station.id,":",station.capacity,":",station.potentialCapacity,"::",trains)
         scheduleTrainMovement()
         simulationTime += 1
         passengersAvailable = False
