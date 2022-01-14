@@ -487,17 +487,21 @@ def addTrainToSchedule(train):
 def addFinishedTrainsToSchedule():
     for station in stations:
         if station.potentialCapacity < 0 and len(station.depart) == 0:
+            print("Had to handle error!")
             for train in station.enter:
                 if isEmpty(station.finishedTrains):
+                    print("No finished train")
                     break
                 else:
                     line = getLineFromAToB(train.currentStation.id,station.id)
                     if line.capacity > 0:
+                        print("Swapping")
                         swapTrain = station.finishedTrains.pop()
                         swapTrain.swapWithTrain(train,line)
                         line.capacity -= 1
 
                     elif line.capacity == 0:
+                        print("Pushing")
                         checkableStations = [station]
                         i=0
                         alternativeStation = None
@@ -546,6 +550,7 @@ def removeTrainsFromSchedule():
                 currentTrain = checkableTrains[i]
                 currentStation = currentTrain.currentStation
                 if currentStation.potentialCapacity > 0:
+                    print(station.id,":",currentTrain.id)
                     # stop train and fix capacities
                     currentTrain.stop()
                     
@@ -729,8 +734,12 @@ if __name__ == "__main__":
         patternMatching()
     initializeEmptyTrains()
 
+    printTrainPassengerAssignment()
+
     passengersAvailable = True
-    while passengersAvailable:
+    while passengersAvailable and simulationTime < 20:
+        for station in stations:
+            print(station.id,":",station.capacity,":",station.potentialCapacity)
         scheduleTrainMovement()
         simulationTime += 1
         passengersAvailable = False
