@@ -478,7 +478,6 @@ def addTrainToSchedule(train):
                 train.nextStation.enter.append(train)
                 train.nextStation.potentialCapacity -= 1
                 train.potentialLine = line
-                print("Interrested", train.id,"::",train.nextStation.id)
                 line.capacity -= 1
     else:
         # if train is on line -> move train
@@ -539,26 +538,20 @@ def addFinishedTrainsToSchedule():
 
 def removeTrainsFromSchedule():
     for station in stations:
-        print(station.id,":",station.potentialCapacity)
-    for station in stations:
         if station.potentialCapacity < 0:
             checkableTrains = []
             i = 0
             checkableTrains += station.enter
-            print("Check::",station.id)
-            for train in checkableTrains:
-                print(train.id)
             while len(checkableTrains)>i:
                 currentTrain = checkableTrains[i]
-                print("Checktrain:",currentTrain.id,":",currentTrain.nextStation.id,"::",i)
                 currentStation = currentTrain.currentStation
                 if currentStation.potentialCapacity > 0:
                     # stop train and fix capacities
                     currentTrain.stop()
-                    print("Stop",currentTrain.id)
                     if station.potentialCapacity >= 0:
                         break
                     else:
+                        checkableTrains += station.enter
                         i+=1
                 else:
                     # addNeigboursTochableStations
@@ -736,13 +729,8 @@ if __name__ == "__main__":
         patternMatching()
     initializeEmptyTrains()
 
-    printTrainPassengerAssignment()
-
     passengersAvailable = True
-    while passengersAvailable and simulationTime < 20:
-        print(simulationTime, "-------------")
-        for station in stations:
-            print(station.id,":",station.capacity,":",station.potentialCapacity)
+    while passengersAvailable:
         scheduleTrainMovement()
         simulationTime += 1
         passengersAvailable = False
