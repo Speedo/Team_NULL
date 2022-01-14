@@ -6,3 +6,11 @@ class Line:
         self.stations.append(stationB)
         self.length = length
         self.capacity = capacity
+
+
+    def addTrain(self):
+        self.capacity -= 1
+    
+
+    def removeTrain(self):
+        self.capacity += 1

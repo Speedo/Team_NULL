@@ -548,7 +548,6 @@ def removeTrainsFromSchedule():
                 if currentStation.potentialCapacity > 0:
                     # stop train and fix capacities
                     currentTrain.stop()
-                    currentTrain.potentialLine.capacity += 1
                     
                     if station.potentialCapacity >= 0:
                         break
