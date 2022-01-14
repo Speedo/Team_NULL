@@ -143,9 +143,7 @@ class Train:
         self.currentStation.removeTrainFromDepartSchedule(self,False)
         self.nextStation.removeTrainFromEnterSchedule(self,False)
         self.line = self.potentialLine
-        print(self.nextStation.id," Before ",self.nextStation.capacity)
         self.nextStation.capacity -= 1
-        print(self.nextStation.id," After ",self.nextStation.capacity,":",self.id)
         self.currentStation = None
         self.nextStation = None
         self.potentialLine = None
