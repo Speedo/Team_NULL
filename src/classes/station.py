@@ -7,7 +7,30 @@ class Station:
         self.potentialCapacity = capacity
         self.finishedTrains = []
         self.previousStation = ""
-    
+
+
     def placeTrain(self):
         self.capacity -= 1
         self.potentialCapacity -= 1
+
+
+    def scheduleTrainDepart(self, train):
+        self.potentialCapacity += 1
+        self.depart.append(train)
+
+
+    def removeTrainFromDepartSchedule(self,train):
+        self.potentialCapacity -= 1
+        self.depart.remove(train)
+
+
+    def scheduleTrainEnter(self,train):
+        self.potentialCapacity -= 1
+        self.enter.append(train)
+
+
+    def removeTrainFromEnterSchedule(self,train):
+        self.potentialCapacity += 1
+        self.enter.remove(train)
+
+
