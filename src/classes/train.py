@@ -129,8 +129,8 @@ class Train:
 
 
     def stop(self):
-        self.currentStation.removeTrainFromDepartSchedule(self)
-        self.nextStation.removeTrainFromEnterSchedule(self)
+        self.currentStation.removeTrainFromDepartSchedule(self,True)
+        self.nextStation.removeTrainFromEnterSchedule(self,True)
         self.nextStation = None
         self.potentialLine.removeTrain()
         self.potentialLine = None
@@ -140,8 +140,8 @@ class Train:
 
 
     def drive(self):
-        self.currentStation.removeTrainFromDepartSchedule(self)
-        self.nextStation.removeTrainFromEnterSchedule(self)
+        self.currentStation.removeTrainFromDepartSchedule(self,False)
+        self.nextStation.removeTrainFromEnterSchedule(self,False)
         self.line = self.potentialLine
         self.nextStation.capacity -= 1
         self.currentStation = None

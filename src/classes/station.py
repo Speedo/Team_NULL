@@ -19,8 +19,9 @@ class Station:
         self.depart.append(train)
 
 
-    def removeTrainFromDepartSchedule(self,train):
-        self.potentialCapacity -= 1
+    def removeTrainFromDepartSchedule(self,train,stop):
+        if stop:
+            self.potentialCapacity -= 1
         self.depart.remove(train)
 
 
@@ -29,8 +30,9 @@ class Station:
         self.enter.append(train)
 
 
-    def removeTrainFromEnterSchedule(self,train):
-        self.potentialCapacity += 1
+    def removeTrainFromEnterSchedule(self,train,stop):
+        if stop:
+            self.potentialCapacity += 1
         self.enter.remove(train)
 
 

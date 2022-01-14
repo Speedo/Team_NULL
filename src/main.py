@@ -474,8 +474,10 @@ def addTrainToSchedule(train):
                 # handle capacity
                 train.nextStation = getStationById(train.path[1])
                 train.currentStation.depart.append(train)
+                print(train.id,"Addx", train.currentStation.id)
                 train.currentStation.potentialCapacity += 1
                 train.nextStation.enter.append(train)
+                print(train.id,"Removex", train.nextStation.id)
                 train.nextStation.potentialCapacity -= 1
                 train.potentialLine = line
                 line.capacity -= 1
@@ -539,14 +541,17 @@ def addFinishedTrainsToSchedule():
 def removeTrainsFromSchedule():
     for station in stations:
         if station.potentialCapacity < 0:
+            print("potentialCapacity in removal:",station.id,":",station.capacity,":",station.potentialCapacity)
             checkableTrains = []
             i = 0
             checkableTrains += station.enter
             while len(checkableTrains)>i:
+                print("potentialCapacity in removal:",station.id,":",station.capacity,":",station.potentialCapacity)
                 currentTrain = checkableTrains[i]
                 currentStation = currentTrain.currentStation
                 if currentStation.potentialCapacity > 0:
                     # stop train and fix capacities
+                    print("Stopping Train:",currentTrain.id)
                     currentTrain.stop()
                     
                     if station.potentialCapacity >= 0:
@@ -557,6 +562,7 @@ def removeTrainsFromSchedule():
                     # addNeigboursTochableStations
                     checkableTrains += currentStation.enter
                     i+=1
+            print("potentialCapacity in removal:",station.id,":",station.capacity,":",station.potentialCapacity)
 
 
 def moveTrains():
@@ -647,8 +653,8 @@ def scheduleTrainMovement():
     removeTrainsFromSchedule()
     moveTrains()
 
-    for station in stations:
-        station.potentialCapacity = station.capacity
+    # for station in stations:
+    #     station.potentialCapacity = station.capacity
 # endregion
 
 
@@ -736,18 +742,19 @@ if __name__ == "__main__":
 
     passengersAvailable = True
     while passengersAvailable:
-        print("--- Simulation Step ---")
-        for station in stations:
-            trains = ""
-            for train in placedTrains:
-                if train.currentStation != None and train.currentStation.id == station.id:
-                    trains += train.id + ", "
-            if trains != "":
-                print(station.id,":",station.capacity,":",station.potentialCapacity,"::",trains)
+        print(simulationTime,"--- Simulation Step ---")
+        # for station in stations:
+        #     print("Capacity ",station.capacity,":",station.potentialCapacity)
+        #     trains = ""
+        #     for train in placedTrains:
+        #         if train.currentStation != None and train.currentStation.id == station.id:
+        #             trains += train.id + ", "
+        #     if trains != "":
+        #         print(station.id,":",station.capacity,":",station.potentialCapacity,"::",trains)
         scheduleTrainMovement()
         simulationTime += 1
         passengersAvailable = False
-
+        
         for passenger in passengers:
             if not passenger.finished:
                 passengersAvailable = True
