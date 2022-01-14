@@ -489,6 +489,21 @@ def addFinishedTrainsToSchedule():
         if station.potentialCapacity < 0 and len(station.depart) == 0:
             for train in station.enter:
                 if isEmpty(station.finishedTrains):
+                    alternativeGraph = linesGraph.copy()
+                    alternativeGraph.remove_edge(train.currentStation.id,station.id)
+                    shortestPathTrainA = shortest_path(alternativeGraph, source=train.currentStation.id, target=train.nextStation.id)
+                    alternativeLine = getLineFromAToB(shortestPathTrainA[0],shortestPathTrainA[1])
+                    if not isEmpty(shortestPathTrainA) and alternativeLine.capacity > 0:
+                        train.path.pop(0)
+                        train.path = shortestPathTrainA[:-1] + train.path
+                        train.passengers.pop(0)
+                        train.passengers = [[] for i in repeat(None, len(shortestPathTrainA)-1)] + train.passengers
+                        train.nextStation.removeTrainFromEnterSchedule(train,True)
+                        train.nextStation = getStationById(train.path[1])
+                        train.potentialLine.capacity += 1
+                        train.potentialLine = alternativeLine
+                        train.nextStation.scheduleTrainEnter(train)
+                        alternativeLine.capacity -= 1
                     break
                 else:
                     line = getLineFromAToB(train.currentStation.id,station.id)
