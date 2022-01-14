@@ -8,7 +8,8 @@ class Station:
         self.finishedTrains = []
         self.previousStation = ""
 
-
+    def __repr__(self):
+        return self.id
     def placeTrain(self):
         self.capacity -= 1
         self.potentialCapacity -= 1

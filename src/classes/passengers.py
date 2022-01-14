@@ -12,7 +12,8 @@ class Passengers:
         self.train = ""
         self.finished = False
         self.actions = []
-
+    def __repr__(self):
+        return self.id
     def addAction(self, time, action, target=""):
         self.actions.append(Action(time, action, target))
         if(action == "Detrain"):

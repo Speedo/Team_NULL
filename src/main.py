@@ -551,7 +551,8 @@ def removeTrainsFromSchedule():
                     if station.potentialCapacity >= 0:
                         break
                     else:
-                        checkableTrains += station.enter
+                        if len(checkableTrains)-1 == i and station.potentialCapacity < 0:
+                            checkableTrains += station.enter
                         i+=1
                 else:
                     # addNeigboursTochableStations

@@ -21,7 +21,8 @@ class Train:
         self.isFinished = False
         self.wasFinished = False
         self.potentialLine = None
-
+    def __repr__(self):
+        return self.id
     def addAction(self, time, action, target):
         self.actions.append(Action(time, action, target))
 

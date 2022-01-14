@@ -1,32 +1,37 @@
+#Error: ValueError: list.remove(x): x not in list
+#::::::::::::::::::::
+#:::::::::Input::::::
+#::::::::::::::::::::
 [Stations]
-S1 3
+S1 8
 S2 1
 S3 4
-S4 8
+S4 2
 S5 1
-S6 1
+S6 6
 
 [Lines]
-L1 S1 S2 6 4
-L2 S4 S5 6 2
-L3 S1 S4 5 3
-L4 S2 S3 3 1
-L5 S5 S6 2 1
-L6 S2 S5 10 2
-L7 S3 S6 1 1
-L8 S1 S3 8 2
-L9 S4 S6 8 1
+L1 S1 S2 7 2
+L2 S4 S5 8 4
+L3 S1 S4 6 3
+L4 S2 S3 2 2
+L5 S5 S6 6 4
+L6 S2 S5 7 4
+L7 S3 S6 2 4
+L8 S1 S3 4 4
+L9 S4 S6 8 2
 
 [Trains]
-T1 S6 4 27
-T2 * 5 23
-T3 * 2 28
-T4 S4 1 27
+T1 S5 2 22
+T2 S2 2 29
+T3 S4 1 20
+T4 S3 4 27
 
 [Passengers]
-P1 S4 S1 10 4
-P2 S1 S2 18 9
-P3 S4 S3 11 17
-P4 S2 S6 5 18
-P5 S5 S2 13 14
-P6 S4 S5 5 15
+P1 S2 S5 19 14
+P2 S2 S5 7 19
+P3 S3 S4 19 6
+P4 S2 S5 12 18
+P5 S1 S5 14 21
+P6 S3 S2 12 23
+P7 S3 S2 13 4
