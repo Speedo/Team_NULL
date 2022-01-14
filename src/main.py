@@ -478,6 +478,7 @@ def addTrainToSchedule(train):
                 train.nextStation.enter.append(train)
                 train.nextStation.potentialCapacity -= 1
                 train.potentialLine = line
+                print("Interrested", train.id,"::",train.nextStation.id)
                 line.capacity -= 1
     else:
         # if train is on line -> move train
@@ -487,21 +488,17 @@ def addTrainToSchedule(train):
 def addFinishedTrainsToSchedule():
     for station in stations:
         if station.potentialCapacity < 0 and len(station.depart) == 0:
-            print("Had to handle error!")
             for train in station.enter:
                 if isEmpty(station.finishedTrains):
-                    print("No finished train")
                     break
                 else:
                     line = getLineFromAToB(train.currentStation.id,station.id)
                     if line.capacity > 0:
-                        print("Swapping")
                         swapTrain = station.finishedTrains.pop()
                         swapTrain.swapWithTrain(train,line)
                         line.capacity -= 1
 
                     elif line.capacity == 0:
-                        print("Pushing")
                         checkableStations = [station]
                         i=0
                         alternativeStation = None
@@ -542,18 +539,23 @@ def addFinishedTrainsToSchedule():
 
 def removeTrainsFromSchedule():
     for station in stations:
+        print(station.id,":",station.potentialCapacity)
+    for station in stations:
         if station.potentialCapacity < 0:
             checkableTrains = []
             i = 0
             checkableTrains += station.enter
+            print("Check::",station.id)
+            for train in checkableTrains:
+                print(train.id)
             while len(checkableTrains)>i:
                 currentTrain = checkableTrains[i]
+                print("Checktrain:",currentTrain.id,":",currentTrain.nextStation.id,"::",i)
                 currentStation = currentTrain.currentStation
                 if currentStation.potentialCapacity > 0:
-                    print(station.id,":",currentTrain.id)
                     # stop train and fix capacities
                     currentTrain.stop()
-                    
+                    print("Stop",currentTrain.id)
                     if station.potentialCapacity >= 0:
                         break
                     else:
@@ -738,6 +740,7 @@ if __name__ == "__main__":
 
     passengersAvailable = True
     while passengersAvailable and simulationTime < 20:
+        print(simulationTime, "-------------")
         for station in stations:
             print(station.id,":",station.capacity,":",station.potentialCapacity)
         scheduleTrainMovement()
