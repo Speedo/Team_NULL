@@ -9,9 +9,9 @@ class Line:
 
     def __repr__(self):
         return self.id
+
     def addTrain(self):
         self.capacity -= 1
-    
 
     def removeTrain(self):
         self.capacity += 1

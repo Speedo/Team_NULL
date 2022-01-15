@@ -2,7 +2,13 @@ from classes.action import Action
 
 
 class Passengers:
-    def __init__(self, id, depatureStation, destinationStation, groupSize, targetTime):
+    def __init__(
+                self,
+                id,
+                depatureStation,
+                destinationStation,
+                groupSize,
+                targetTime):
         self.id = id
         self.depatureStation = depatureStation
         self.destinationStation = destinationStation
@@ -12,8 +18,10 @@ class Passengers:
         self.train = ""
         self.finished = False
         self.actions = []
+
     def __repr__(self):
         return self.id
+
     def addAction(self, time, action, target=""):
         self.actions.append(Action(time, action, target))
         if(action == "Detrain"):
