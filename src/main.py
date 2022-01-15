@@ -709,30 +709,6 @@ def initializeEmptyTrains():
             train.setFinished()
 
 
-def printTrainPassengerAssignment():
-    for train in trains:
-        print(train.id, ": ", train.timeNeeded)
-        pathString = ""
-
-        for station in train.path:
-            if station is not None:
-                pathString += station + " "
-
-        print(pathString)
-        passengersString = ""
-
-        for passengersStation in train.passengers:
-            passengersString += "["
-
-            for passenger in passengersStation:
-                passengersString += passenger + " "
-
-            passengersString += "]"
-
-        print(passengersString)
-# endregion
-
-
 # region Main
 if __name__ == "__main__":
     loadInput()
