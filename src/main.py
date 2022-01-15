@@ -13,6 +13,7 @@ from sys import stdin
 from numpy import inf
 from math import ceil
 import os
+import time
 # endregion
 
 # region Variables
@@ -40,7 +41,7 @@ trainsDict = {}
 # region In/Output
 if(os.environ.get("USERNAME") != "speedo"):
     def loadInput():
-        with open('input.txt') as f:
+        with open('../input.txt') as f:
 
             file = f.readlines()
             inputType = ""
@@ -504,50 +505,6 @@ def addFinishedTrainsToSchedule():
                         train.potentialLine = alternativeLine
                         train.nextStation.scheduleTrainEnter(train)
                         alternativeLine.capacity -= 1
-                    else:
-                        print("Edge Case!")
-                        # checkableStations = []
-                        # for lineTupel in linesGraph.edges(train.currentStation.id):
-                        #     if train.nextStation.id != lineTupel[1]:
-                        #         lineStation = getStationById(lineTupel[1])
-                        #         lineStation.previousStation = lineTupel[0]
-                        #         checkableStations.append(lineStation)
-
-                        # i=0
-                        # alternativeStation = None
-                        # while len(checkableStations) > i :
-                        #     for lineTupel in linesGraph.edges(checkableStations[i].id):
-                        #         if getStationById(checkableStations[i].id).previousStation == lineTupel[1]:
-                        #             continue
-                        #         if len(getStationById(lineTupel[0]).finishedTrains) > 0:
-                        #             line = getLineFromAToB(lineTupel[0],lineTupel[1])
-                        #             if line.capacity > 0:
-                        #                 lineStation = getStationById(lineTupel[1])
-                        #                 lineStation.previousStation = lineTupel[0]
-                        #                 if lineStation.potentialCapacity > 0:
-                        #                     alternativeStation = lineStation
-                        #                     break
-                        #                 else:
-                        #                     checkableStations.append(lineStation)
-                        #         else:
-                        #             break
-                        #     if alternativeStation!=None:
-                        #         break
-                        #     i+=1
-                        # if alternativeStation!=None:
-                        #     previousStation = ""
-                        #     pushStation = getStationById(alternativeStation.previousStation)
-                        #     while previousStation != station.id:
-                        #         pushLine = getLineFromAToB(pushStation.id,alternativeStation.id)
-                        #         pushTrain = pushStation.finishedTrains.pop()
-                        #         pushTrain.pushTrainToStation(alternativeStation,pushLine)
-                        #         pushLine.capacity -= 1
-
-                        #         previousStation = pushStation.id
-                        #         alternativeStation = pushStation
-                                
-                        #         if alternativeStation.previousStation!="":
-                        #             pushStation = getStationById(alternativeStation.previousStation)
                     break
                 else:
                     line = getLineFromAToB(train.currentStation.id,station.id)
@@ -780,6 +737,7 @@ def printTrainPassengerAssignment():
 
 # region Main
 if __name__ == "__main__":
+    start = int(time.time())
     loadInput()
     buildLinesGraph()
     initializeCurrentStations()
@@ -794,10 +752,12 @@ if __name__ == "__main__":
         scheduleTrainMovement()
         simulationTime += 1
         passengersAvailable = False
-        
+
         for passenger in passengers:
             if not passenger.finished:
                 passengersAvailable = True
                 break
     writeOutput()
+    end = int(time.time()) - start
+    print(end)
 # endregion
