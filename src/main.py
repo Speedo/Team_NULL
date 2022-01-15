@@ -12,8 +12,6 @@ from operator import add
 from sys import stdin
 from numpy import inf
 from math import ceil
-import os
-import time
 # endregion
 
 # region Variables
@@ -39,120 +37,61 @@ trainsDict = {}
 
 
 # region In/Output
-if(os.environ.get("USERNAME") != "speedo"):
-    def loadInput():
-        with open('../input.txt') as f:
+def loadInput():
 
-            file = f.readlines()
-            inputType = ""
+    file = stdin.readlines()
+    inputType = ""
 
-            for i in file:
-                inputType = getInputType(i, inputType)
-                data = i.split(" ")
+    for i in file:
+        inputType = getInputType(i, inputType)
+        data = i.split(" ")
 
-                if(len(data) < 2):
-                    continue
-                
-                if(data[0].find("#") != -1):
-                    continue
-                if(data[0]== ""):
-                    continue
-                if inputType == 0:
-                    station = Station(data[0], int(data[1].replace("\\n", "")))
-                    stations.append(station)
-                    stationsDict[station.id] = station
+        if(len(data) < 2):
+            continue
 
-                elif inputType == 1:
-                    line = Line(
-                                data[0],
-                                data[1],
-                                data[2],
-                                float(data[3]), 
-                                int(data[4].replace("\\n", "")))
-                    lines.append(line)
-                    linesDict[line.id] = line
+        if(data[0].find("#") != -1):
+            continue
+        if(data[0]== ""):
+            continue
+        if inputType == 0:
+            station = Station(data[0], int(data[1].replace("\\n", "")))
+            stations.append(station)
+            stationsDict[station.id] = station
 
-                elif inputType == 2:
-                    curTrain = Train(
-                                    data[0], 
-                                    data[1], 
-                                    float(data[2]),
-                                    int(data[3].replace("\\n", "")),
-                                    idletime)
-                    trains.append(curTrain)
-                    trainsDict[curTrain.id] = curTrain
+        elif inputType == 1:
+            line = Line(
+                        data[0],
+                        data[1],
+                        data[2],
+                        float(data[3]), 
+                        int(data[4].replace("\\n", "")))
+            lines.append(line)
+            linesDict[line.id] = line
 
-                    if (curTrain.startingPosition == "*"):
-                        wildcardTrains.append(curTrain)
+        elif inputType == 2:
+            curTrain = Train(
+                            data[0], 
+                            data[1], 
+                            float(data[2]),
+                            int(data[3].replace("\\n", "")),
+                            idletime)
+            trains.append(curTrain)
 
-                    else:
-                        placedTrains.append(curTrain)
+            if (curTrain.startingPosition == "*"):
+                wildcardTrains.append(curTrain)
 
-                elif inputType == 3:
-                    passenger = Passengers(
-                                    data[0], 
-                                    data[1], 
-                                    data[2], 
-                                    int(data[3]),
-                                    int(data[4].replace("\\n", "")))
-                    passengers.append(passenger)
-                    passengersDict[passenger.id] = passenger
-else:
-    def loadInput():
+            else:
+                placedTrains.append(curTrain)
 
-        file = stdin.readlines()
-        inputType = ""
-
-        for i in file:
-            inputType = getInputType(i, inputType)
-            data = i.split(" ")
-
-            if(len(data) < 2):
-                continue
-
-            if(data[0].find("#") != -1):
-                continue
-            if(data[0]== ""):
-                continue
-            if inputType == 0:
-                station = Station(data[0], int(data[1].replace("\\n", "")))
-                stations.append(station)
-                stationsDict[station.id] = station
-
-            elif inputType == 1:
-                line = Line(
-                            data[0],
-                            data[1],
-                            data[2],
-                            float(data[3]), 
+        elif inputType == 3:
+            passenger = Passengers(
+                            data[0], 
+                            data[1], 
+                            data[2], 
+                            int(data[3]),
                             int(data[4].replace("\\n", "")))
-                lines.append(line)
-                linesDict[line.id] = line
-
-            elif inputType == 2:
-                curTrain = Train(
-                                data[0], 
-                                data[1], 
-                                float(data[2]),
-                                int(data[3].replace("\\n", "")),
-                                idletime)
-                trains.append(curTrain)
-
-                if (curTrain.startingPosition == "*"):
-                    wildcardTrains.append(curTrain)
-
-                else:
-                    placedTrains.append(curTrain)
-
-            elif inputType == 3:
-                passenger = Passengers(
-                                data[0], 
-                                data[1], 
-                                data[2], 
-                                int(data[3]),
-                                int(data[4].replace("\\n", "")))
-                passengers.append(passenger)
-                passengersDict[passenger.id] = passenger
+            passengers.append(passenger)
+            passengersDict[passenger.id] = passenger
 
 
 def getInputType(line, inputType):
@@ -737,7 +676,6 @@ def printTrainPassengerAssignment():
 
 # region Main
 if __name__ == "__main__":
-    start = int(time.time())
     loadInput()
     buildLinesGraph()
     initializeCurrentStations()
@@ -758,6 +696,4 @@ if __name__ == "__main__":
                 passengersAvailable = True
                 break
     writeOutput()
-    end = int(time.time()) - start
-    print(end)
 # endregion
